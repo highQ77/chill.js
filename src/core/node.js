@@ -288,7 +288,9 @@ class Img extends NodeBase {
     }
 
     setSrc(src) {
-        this.__tag.src = location.protocol + '//' + location.host + '/assets/' + src;
+        if (location.host.indexOf('127') > -1 || location.host.indexOf('localhost') > -1)
+            this.__tag.src = location.protocol + '//' + location.host + '/assets/' + src;
+        else this.__tag.src = location.protocol + '//' + location.host + '/chill.js/assets/' + src;
         return this
     }
 

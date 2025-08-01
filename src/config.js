@@ -21,6 +21,9 @@ export const config = {
             fruit: [{ fruit: 'apple', price: 10 }, { fruit: 'orange', price: 5 }, { fruit: 'banana', price: 7 }],
             // use vm_single with single value
             single: 'time: ' + Date.now(),
+
+        },
+        p_introB: {
             textAreaTest: 'enter somethings here'
         }
     }
