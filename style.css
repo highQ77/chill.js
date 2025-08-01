@@ -1,0 +1,11 @@
+/* global */
+
+body {
+    margin: 0;
+    background: #222;
+}
+
+/* router buttons active state */
+.active {
+    border-bottom: 2px springgreen solid;
+}

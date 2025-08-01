@@ -1,0 +1,20 @@
+[js 類別權限設計部分]
+
+class 屬性權限如下
+public 屬性前無需_
+protect 屬性前1個_
+private 屬性前2個_
+
+public | var
+protect | _var
+private | __var
+
+example:
+class MyClass{
+    var=0 表示 public 屬性
+    _var=1 表示 protect 屬性
+    __var=2 表示 private 屬性
+    method(){} 表示 public 方法
+    _method(){} 表示 protect 方法
+    __method(){} 表示 private 方法
+}
