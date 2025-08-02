@@ -19,7 +19,7 @@ export const config = {
         p_introA: {
             // use vm_list with array
             fruit: [{ fruit: 'apple', price: 10 }, { fruit: 'orange', price: 5 }, { fruit: 'banana', price: 7 }],
-            // use vm_single with single value
+            // use vm_single with - single value (string or number)
             single: 'time: ' + Date.now(),
 
         },

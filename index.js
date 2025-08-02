@@ -5,8 +5,10 @@ import { store } from "./src/core/store.js";
 // 作者 梁紘謙 William77 (威廉) 2025/07/31
 
 // [todo]
+// 🟣 page redesign
 // 🟣 store fetch data 功能開發 (目前是假資料)
-// 🟣 essential ui component: dialog(alert/confirm) / date? / time? / date time? / color?
+// 🟣 essential ui component: date? / time? / date time? / color? / checkbox / radio button / select / pager
+// 🟣 .isFormItem(itemKey) // NodeBase
 
 // [intro]
 // ✅ 有鑒於現代前端框架複雜度劇增，個人希望能開發出簡單易學且能快速開發的框架
@@ -17,9 +19,7 @@ import { store } from "./src/core/store.js";
 // ✅ 與傳統 html 差別在標籤生成全在 js 裡完成
 // ✅ 程式碼不用編譯即可直接預覽（推薦使用 VSCode Live Server）
 // ✅ 支援程式碼提示可參考 src/core/node.js 的 API
-// ✅ 無需 UI 模板，直接用 js 打造 dom 樹
-// ✅ 模組化與封裝元件範例如 src/ui/uibutton.js
-// ✅ 不同層級的元件溝通簡單，僅需 getChildById 取物件
+// ✅ 不同層級的元件溝通簡單，僅需 getPageNodes 物件全取 or getPageNodeById 取單一物件
 // ✅ 可以整合 tailwind 與其他 css 框架
 // ✅ router 設計簡單直覺，可參考 src/core/router.js 的 API
 // ✅ store 用於管理全域資料，且畫面切換資料不會消失，通常會配合 node.proxy 使用

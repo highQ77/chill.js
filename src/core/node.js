@@ -4,32 +4,33 @@ import { router } from "./router.js";
 
 // page change and get all node tid, speed up tid search
 let nodes = []
-function deepSearch(node) {
-    if (node.__id.indexOf('tag-') == -1) {
-        nodes.push(node)
-    }
-    if (node.getChildren) {
-        let chs = node.getChildren()
-        for (let i = 0; i < chs.length; i++) {
-            nodes = deepSearch(chs[i])
+{
+    function deepSearch(node) {
+        if (node.__id.indexOf('tag-') == -1) {
+            nodes.push(node)
         }
+        if (node.getChildren) {
+            let chs = node.getChildren()
+            for (let i = 0; i < chs.length; i++) {
+                nodes = deepSearch(chs[i])
+            }
+        }
+        return nodes
     }
-    return nodes
+    let updateNodes = () => {
+        nodes.length = 0
+        nodes = deepSearch(node.app())
+        // console.log(nodes) 
+        return nodes.length
+    }
+    window.addEventListener('popstate', updateNodes)
+    let update = () => {
+        let result = updateNodes()
+        if (result == 1) requestAnimationFrame(update)
+        else 'mounted' // 😎
+    }
+    requestAnimationFrame(update)
 }
-let updateNodes = () => {
-    nodes.length = 0
-    nodes = deepSearch(node.app())
-    // console.log(nodes) 
-    return nodes.length
-}
-window.addEventListener('popstate', updateNodes)
-let update = () => {
-    let result = updateNodes()
-    if (result == 1) requestAnimationFrame(update)
-    else 'mounted' // 😎
-}
-requestAnimationFrame(update)
-
 // --------------------------------------------------------DOM----------------------------------------------------------------
 
 let idCounter = 0
@@ -56,7 +57,10 @@ class NodeBase {
 
         // remove event
         if (this.__eventList) {
-            this.__eventList.forEach(e => this.__tag.removeEventListener(e.eventName, e.event))
+            this.__eventList.forEach(e => {
+                this.__tag.removeEventListener(e.eventName, e.event)
+                delete e.event.exe
+            })
             this.__eventList.length = 0
             delete this.__eventList
         }
@@ -96,11 +100,23 @@ class NodeBase {
         return this.__tag.className
     }
 
-    /** event - auto remove event by calling destroy function */
+    /** event - auto remove event by calling remove function */
     on(eventName, execFun) {
-        const event = e => { execFun(e) }
+        const event = e => { execFun(e, this) }
+        event.exe = execFun
         this.__tag.addEventListener(eventName, event)
         this.__eventList.push({ eventName, event })
+        return this
+    }
+
+    /** delete event */
+    off(eventName, execFun) {
+        let e = this.__eventList.filter(e => e.eventName == eventName && e.event.exe == execFun)[0]
+        if (!e) return this
+        let index = this.__eventList.findIndex(ev => ev == e)
+        console.log(index)
+        this.__tag.removeEventListener(e.eventName, e.event)
+        this.__eventList.splice(index, 1)
         return this
     }
 }
@@ -504,6 +520,188 @@ class FilePicker extends NodeBase {
 
 }
 
+class DatePicker extends Div {
+
+    __currentDate = ''
+    __selectDate = ''
+    __dateArray = [] // string[]
+    __dateClass // obj
+
+    constructor(dateClass) {
+        super()
+        // tid && (this.__id = tid)
+        // tid && this.__tag.setAttribute('tid', this.__id)
+        this.__dateClass = dateClass
+        this.__setup()
+    }
+
+    __setup() {
+        let now = new Date(),
+            date = now.getDate(),
+            month = now.getMonth() + 1,
+            year = now.getFullYear(),
+            arr = this.__fillArray(year, month)
+
+        this.__updateCalendar(year, month, date, arr)
+        this.__currentDate = this.__selectDate
+    }
+
+    getCurrentDate() {
+        let [y, m, d] = this.__selectDate.split('-')
+        m = m.padStart(2, '0')
+        d = d.padStart(2, '0')
+        let dd = y + '/' + m + '/' + d
+        return this.__getFormatDate(new Date(dd))
+    }
+
+    __getFormatDate(date) {
+        let dn = date || new Date(Date.now())
+        let y = dn.getFullYear()
+        let m = (dn.getMonth() + 1).toString().padStart(2, '0')
+        let d = (dn.getDate()).toString().padStart(2, '0')
+        return `${y}-${m}-${d}`
+    }
+
+    __updateDateDatas() {
+        let { dateDigiBottonNone, dateDigiBotton } = this.__dateClass
+        let datas = []
+        this.__dateArray.forEach(i => {
+            datas.push(
+                node.div().setStyle({
+                    display: 'inline-flex',
+                    justifyContent: 'center',
+                    width: 'calc(100% / 7)',
+                    cursor: 'pointer',
+                }).setChildren([
+                    node.div().setClass(i == '_' ? dateDigiBottonNone : dateDigiBotton).setStyle({
+                        display: 'inline-flex',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        color: `${i == '_' ? 'rgba(50, 50, 50, 0.2)' : (this.__selectDate == i ? 'white' : 'black')}`,
+                        // border: `1px solid ${i == '_' ? 'rgba(255,255,255,.5)' : 'cyan'}`,
+                        width: '32px',
+                        margin: '3px',
+                        borderRadius: '4px',
+                        outline: this.__checkCurrrentDate(i) ? '2px solid black' : '0px',
+                        background: (this.__selectDate == i ? '#333' : '')
+                    }).on('click', t => {
+                        if (i == '_') return
+                        this.__selectDate = i
+                        this.__chooseSelectDate()
+                    }).setText(i.split('-').pop())
+                ])
+            )
+        });
+        return datas
+    }
+
+    __fillArray(year, month) {
+        const firstDay = new Date(year, month - 1, 1).getDay()
+        const lastDay = new Date(year, month, 0).getDate()
+        let arr = new Array(42).fill(0)
+        let i = 0, j = firstDay
+        for (i = 0; i < j; i++) {
+            arr[i] = '_'
+        }
+        for (i = 0; i < lastDay; i++, j++) {
+            arr[j] = year + '-' + month + '-' + (i + 1);
+        }
+        arr = arr.map(i => i == 0 ? '_' : i)
+        return arr;
+    }
+
+    __nextMonth() {
+        let [year, month, date] = this.__cpSelectDate()
+        month = month + 1;
+        if (month > 12) {
+            year += 1;
+            month = 1;
+        }
+        const arr = this.__fillArray(year, month);
+        this.__updateCalendar(year, month, date, arr);
+    }
+
+    __prevMonth() {
+        let [year, month, date] = this.__cpSelectDate()
+        month = month - 1;
+        if (month < 1) {
+            year -= 1;
+            month = 12;
+        }
+        const arr = this.__fillArray(year, month);
+        this.__updateCalendar(year, month, date, arr);
+    }
+
+    __nextYear() {
+        let [year, month, date] = this.__cpSelectDate()
+        year = year + 1;
+        const arr = this.__fillArray(year, month);
+        this.__updateCalendar(year, month, date, arr);
+    }
+
+    __prevYear() {
+        let [year, month, date] = this.__cpSelectDate()
+        year = year - 1;
+        const arr = this.__fillArray(year, month);
+        this.__updateCalendar(year, month, date, arr);
+    }
+
+    __chooseCurrentDate() {
+        const [year, month, date] = this.__currentDate.split('-')
+        const arr = this.__fillArray(year, month);
+        this.__updateCalendar(year, month, date, arr);
+    }
+
+    __chooseSelectDate() {
+        const [year, month, date] = this.__selectDate.split('-')
+        const arr = this.__fillArray(year, month);
+        this.__updateCalendar(year, month, date, arr);
+    }
+
+    __checkCurrrentDate(date) {
+        const [year1, month1, date1] = this.__currentDate.split('-')
+        const [year2, month2, date2] = this.__selectDate.split('-')
+        return year1 == year2 && month1 == month2 && date.split('-')[2] == date1
+    }
+
+    __cpSelectDate() {
+        return this.__selectDate.split('-').map(n => parseInt(n))
+    }
+
+    __updateCalendar(year, month, date, arr) {
+        if (this.__selectDate) {
+            const [year1, month1, date1] = this.__currentDate.split('-')
+            const [year2, month2, date2] = this.__selectDate.split('-')
+            if (year != year2 || month != month2) {
+                if (year1 == year && month1 == month) {
+                    this.__selectDate = [year, month, date1].join('-')
+                } else this.__selectDate = [year, month, 1].join('-')
+            }
+            else this.__selectDate = arr.filter(d => d && d.split('-')[2] == date)[0];
+        } else {
+            this.__selectDate = arr.filter(d => d && d.split('-')[2] == date)[0];
+        }
+        this.__dateArray = arr
+        requestAnimationFrame(() => {
+            this.getChildById('dateLabel').setText(this.__selectDate);
+            this.getChildById('dateData').setChildren(this.__updateDateDatas())
+        })
+    }
+}
+
+class ColorPicker extends Div {
+    constructor(dateClass) {
+        super()
+        // tid && (this.__id = tid)
+        // tid && this.__tag.setAttribute('tid', this.__id)
+        this.__setup()
+    }
+
+    __setup() {
+
+    }
+}
+
 // ViewModel List
 class VMList extends Div {
 
@@ -816,10 +1014,11 @@ class VMSingle extends Div {
 
 }
 
-// --------------------------------------------------------UI----------------------------------------------------------------
+// --------------------------------------------------------UI Base----------------------------------------------------------------
 
 // dialog
-const dialog = (title, contentNode, buttons = [], titleClass, bodyClass, bottonGroupClass, buttonClass, width, height, callback) => {
+const dialog = (title, contentNode, buttons = [], essentialDialogStyle, width, height, callback) => {
+    let { dialogTitleClass, dialogBodyClass, dialogBottonGroupClass, dialogButtonClass } = essentialDialogStyle
     let transparentCover = node.div().setStyle({
         display: 'flex',
         width: '100vw',
@@ -831,10 +1030,10 @@ const dialog = (title, contentNode, buttons = [], titleClass, bodyClass, bottonG
         justifyContent: 'center',
         alignItems: 'center'
     })
-    const container = node.div().setClass(bodyClass) // dialog backgroud
-    const titleBar = node.div().setClass(titleClass).setText(title) // title
-    const btnGroup = node.div().setClass(bottonGroupClass)
-    buttons.forEach(i => btnGroup.pushChild(i.setClass(buttonClass))) // buttons
+    const container = node.div().setClass(dialogBodyClass) // dialog backgroud
+    const titleBar = node.div().setClass(dialogTitleClass).setText(title) // title
+    const btnGroup = node.div().setClass(dialogBottonGroupClass)
+    buttons.forEach(i => btnGroup.pushChild(i.setClass(dialogButtonClass))) // buttons
     container.pushChild(titleBar)
     container.pushChild(contentNode.setStyle({ width, height }))
     container.pushChild(btnGroup)
@@ -852,44 +1051,87 @@ const dialog = (title, contentNode, buttons = [], titleClass, bodyClass, bottonG
 }
 
 // alert dialog
-const alert = (messeage, titleClass, bodyClass, bottonGroupClass, buttonClass, width, height, callback) => {
+const alert = (messeage, essentialDialogStyle, width, height, callback) => {
+    let { dialogButtonClass } = essentialDialogStyle
     let content = node.div().setText(messeage).setClass('flex justify-center items-center')
     let buttons = []
-    let btn = node.button('', 'OK', buttonClass)
+    let btn = node.button('', 'OK', dialogButtonClass)
     btn.on('click', () => { dig.remove(); callback(true) })
     buttons.push(btn)
-    let dig = dialog('Alert', content, buttons, titleClass, bodyClass, bottonGroupClass, buttonClass, width, height, callback)
+    let dig = dialog('Alert', content, buttons, essentialDialogStyle, width, height, callback)
     return dig
 }
 
 // confirm dialog
-const confirm = (messeage, titleClass, bodyClass, bottonGroupClass, buttonClass, width, height, callback) => {
+const confirm = (messeage, essentialDialogStyle, width, height, callback) => {
+    let { dialogButtonClass } = essentialDialogStyle
     let content = node.div().setText(messeage).setClass('flex justify-center items-center')
     let buttons = []
-    let btn = node.button('', 'OK', buttonClass)
-    let cancel = node.button('', 'Cancel', buttonClass)
+    let btn = node.button('', 'OK', dialogButtonClass)
+    let cancel = node.button('', 'Cancel', dialogButtonClass)
     btn.on('click', () => { dig.remove(); callback(true) })
     cancel.on('click', () => { dig.remove(); callback(false) })
     buttons.push(cancel)
     buttons.push(btn)
-    let dig = dialog('Confirm', content, buttons, titleClass, bodyClass, bottonGroupClass, buttonClass, width, height, callback)
+    let dig = dialog('Confirm', content, buttons, essentialDialogStyle, width, height, callback)
     return dig
 }
 
+// date dialog
+const date = (essentialDialogStyle, dateClass, width, height, callback) => {
+    let { dialogButtonClass } = essentialDialogStyle
+    let gridStyle = {
+        width: 'calc(100% / 7)',
+        cursor: 'pointer',
+        textAlign: 'center'
+    }
+    let content = (new DatePicker(dateClass)).setChildren([
+        node.div().setClass('flex justify-between items-center').setChildren([
+            node.button('leftx2', '<<', dialogButtonClass).setStyle({ height: '30px' }),
+            node.button('left', '<', dialogButtonClass).setStyle({ height: '30px' }),
+            node.span('dateLabel').setText('2025-08-01').setStyle({ width: '160px', textAlign: 'center' }),
+            node.button('right', '>', dialogButtonClass).setStyle({ height: '30px' }),
+            node.button('rightx2', '>>', dialogButtonClass).setStyle({ height: '30px' })
+        ]),
+        node.div()
+            .setChildren(['日', '一', '二', '三', '四', '五', '六'].map(d => node.div().setClass('inline-flex justify-center items-center').setText(d).setStyle(gridStyle))),
+        node.div()
+            .setChildren(['Sun', 'Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat'].map(d => node.div().setClass('inline-flex justify-center items-center').setText(d).setStyle(gridStyle))),
+        node.div('dateData')
+    ])
+    content.getChildById('leftx2').on('click', _ => content.__prevYear())
+    content.getChildById('left').on('click', _ => content.__prevMonth())
+    content.getChildById('right').on('click', _ => content.__nextMonth())
+    content.getChildById('rightx2').on('click', _ => content.__nextYear())
+    let buttons = []
+    let btn = node.button('', 'OK', dialogButtonClass)
+    let reset = node.button('', 'Reset', dialogButtonClass)
+    btn.on('click', () => {
+        dig.remove()
+        callback(content.getCurrentDate())
+    })
+    reset.on('click', () => content.__chooseCurrentDate())
+    buttons.push(reset)
+    buttons.push(btn)
+    let dig = dialog('Date Picker', content, buttons, essentialDialogStyle, width, height, callback)
+    return dig
+}
 
 // essential button. if you set pageId, then you will switch to router mode
 const button = (tid, label, className, pageId, activeClassName = 'active') => {
     const btn = node.div(tid).setClass(className).setText(label)
     btn.routerPageId = pageId
-    pageId && btn.on('click', () => router.go(pageId))
-    requestAnimationFrame(() => {
-        if (location.href.split('/#/')[1]?.indexOf(pageId) > -1) {
-            btn.getParent().getChildren().forEach(e => {
-                e.setClass(className)
-            })
-            btn.setClass(className + ' ' + activeClassName)
-        }
-    })
+    if (pageId) {
+        btn.on('click', () => router.go(pageId))
+        requestAnimationFrame(() => {
+            if (location.href.split('/#/')[1]?.indexOf(pageId) > -1) {
+                btn.getParent().getChildren().forEach(e => {
+                    e.setClass(className)
+                })
+                btn.setClass(className + ' ' + activeClassName)
+            }
+        })
+    }
     return btn
 }
 
@@ -1052,23 +1294,40 @@ function proxy(storeField) {
     return items
 }
 
+/** node is a core functions set, which can build basic ui */
 export const node = {
     /** 取得目前頁面所有有 tid 的物件，適用於跨不同層級元件呼叫使用 */
     getPageNodes: () => nodes,
     /** 取得目前頁面指定 tid 的物件，適用於跨不同層級元件呼叫使用 */
     getPageNodeById: (id) => nodes.filter(n => n.getId() == id)[0],
+    /** 取得 root 節點 */
     app: () => NodeBase.__app,
+    /** 取得 div 節點 */
     div: (id) => new Div(id),
+    /** 取得 span 節點 */
     span: (id) => new Span(id),
+    /** 取得 img 節點 */
     img: (id) => new Img(id),
-    vm_input: (id, data, type) => new Input(id, data, type),
-    vm_textarea: (id, data) => new TextArea(id, data),
+    /** 取得 vm input 節點 */
+    vm_input: (id, data, type) => new Input(id, data, type), // model view
+    /** 取得 vm textarea 節點 */
+    vm_textarea: (id, data) => new TextArea(id, data), // model view
+    /** 取得 vm list 節點，多筆資料使用 */
     vm_list: (id, item_tpl, datas) => new VMList(id, item_tpl, datas), // model view
+    /** 取得 vm single 節點，單筆資料使用，可想為僅一個資料的陣列 */
     vm_single: (id, item_tpl, datas) => new VMSingle(id, item_tpl, datas), // model view
+    /** 生成檔案選取按鈕 */
     file: (id, label, className, readerMode, callback) => new FilePicker(id, label, className, readerMode, callback),
+    /** 一般按鈕或是路由按鈕 */
     button,
+    /** 對話框基底 */
     dialog,
+    /** 日期選擇器 */
+    date,
+    /** dialog 延伸的警告視窗 */
     alert,
+    /** dialog 延伸的確認視窗 */
     confirm,
+    /** 將資料轉為 View Model 間溝通的橋樑，使用方法如 node.proxy(store.data.xxxx...) */
     proxy,
 }

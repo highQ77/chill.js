@@ -10,6 +10,7 @@ export let router = {
     },
     // go to new page
     go(pageId) {
+        if (!pageId) return
         if (location.href.split('/#/')[1] == pageId) return // check repeat mouse click
         pageId = setting[pageId].default || pageId // if u have default page
         let url = location.protocol + '//' + location.host + '/#/' + pageId

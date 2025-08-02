@@ -1,25 +1,69 @@
 import { node } from "../core/node.js"
 
-const essentialDialogStyle = [
-    'bg-cyan-500 text-[white] flex justify-center items-center h-[43px]',
-    'bg-[white] rounded-sm overflow-hidden',
-    'text-right',
-    'bg-cyan-500 inline-flex p-2 cursor-pointer hover:bg-black m-1 rounded-sm w-[100px] text-[white] justify-center items-center ',
-    '350px',
-    '200px',
-]
-
-function alert(msg, callback) {
-    return node.alert(msg, ...essentialDialogStyle, callback)
+// ---------------- Button
+const buttonClass = 'bg-cyan-500 inline-flex p-2 cursor-pointer hover:bg-black m-1 rounded-sm select-none'
+function button(tid, label, pageId, activeClassName = 'active') {
+    return node.button(tid, label, buttonClass, pageId, activeClassName)
 }
 
-function confirm(msg, callback) {
-    return node.confirm(msg, ...essentialDialogStyle, callback)
+// ---------------- SelectFileButton
+const fileButtonClass = 'bg-yellow-500 inline-flex p-2 cursor-pointer hover:bg-black m-1 rounded-sm select-none'
+function file(id, label, readerMode, callback) {
+    return node.file(id, label, fileButtonClass, readerMode, callback)
+}
+
+// ---------------- Alert & Confirm
+const dialogTitleClass = 'bg-cyan-500 text-[white] flex justify-center items-center h-[43px]'
+const dialogBodyClass = 'bg-[white] rounded-sm overflow-hidden select-none border-3 border-cyan-500 outline-5 shadow-lg'
+const dialogBottonGroupClass = 'text-right'
+const dialogButtonClass = 'bg-cyan-500 inline-flex p-2 cursor-pointer hover:bg-black m-1 rounded-sm min-w-[50px] text-[white] justify-center items-center'
+
+const essentialDialogStyle = {
+    /** dialog title */
+    dialogTitleClass,
+    /** dialog body container */
+    dialogBodyClass,
+    /** dialog bottom buttons' container */
+    dialogBottonGroupClass,
+    /** dialog bottom buttons' class  */
+    dialogButtonClass,
+}
+
+function alert(msg, cssWidth, cssHeight, callback) {
+    return node.alert(msg, essentialDialogStyle, cssWidth, cssHeight, callback)
+}
+
+function confirm(msg, cssWidth, cssHeight, callback) {
+    return node.confirm(msg, essentialDialogStyle, cssWidth, cssHeight, callback)
+}
+
+// ---------------- Date Picker
+
+const dateClass = {
+    /**  selected digital date button border */
+    dateDigiBottonNone: 'border-1 hover:border-[#999]',
+    dateDigiBotton: 'border-1 hover:border-cyan-500',
+}
+
+function date(callback) {
+    return node.date(essentialDialogStyle, dateClass, '325px', '285px', callback)
+}
+
+// ---------------- Layout
+const layoutV = (node, gapVal = 0) => {
+    return node.setClass(`grid gap-${gapVal}`)
+}
+
+const layoutH = (node, colsCount = 1, gapVal = 0) => {
+    return node.setClass(`grid grid-cols-${colsCount} gap-${gapVal}`)
 }
 
 export const ui = {
-    /** custom ui style - alert */
+    button,
+    file,
     alert,
-    /** custom ui style - confirm */
-    confirm
+    date,
+    confirm,
+    layoutV,
+    layoutH,
 }

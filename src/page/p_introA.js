@@ -1,10 +1,8 @@
 import { node } from "../core/node.js"
 import { store } from "../core/store.js"
+import { ui } from "../custom/ui.js"
 
 export const p_introA = () => {
-
-    // custom css class
-    const wowBtn = 'bg-cyan-500 inline-flex p-2 cursor-pointer hover:bg-black m-1 rounded-sm'
 
     // custom css style
     let style_hi = { width: '100vw', height: '100vh', background: 'rgba(110, 53, 0, 0.5)', fontSize: '24px', padding: '10px' }
@@ -20,22 +18,22 @@ export const p_introA = () => {
     let jsdom = node.div('hiA').setStyle(style_hi).setChildren([
         node.span('sub').setText('Tab A - MVVM test'),
         node.div().setText('🟢------single vm----- single data, single view'),
-        node.button('updateOne', 'update single item', wowBtn),
+        ui.button('updateOne', 'update single item'),
         node.vm_single('oneItem', singleItemTemplate, oneItemData),
         node.div().setText('🟢------many vms----- same data, different view'),
-        node.button('push', 'push', wowBtn),
-        node.button('pop', 'pop', wowBtn),
-        node.button('shift', 'shift', wowBtn),
-        node.button('unshift', 'unshift', wowBtn),
-        node.button('removeAt', 'removeAt1', wowBtn),
-        node.button('addAt', 'addAt1', wowBtn),
-        node.button('replaceAt', 'replaceAt1', wowBtn),
-        node.button('reverse', 'reverse', wowBtn),
-        node.button('sort', 'sort', wowBtn),
-        node.button('clear', 'clear', wowBtn),
-        node.button('fetch', 'fetch', wowBtn),
-        node.vm_list('vm', vmItemTemplate, vmItemData),
-        node.vm_list('vm2', vmItemTemplate2, vmItemData),
+        ui.button('push', 'push'),
+        ui.button('pop', 'pop'),
+        ui.button('shift', 'shift'),
+        ui.button('unshift', 'unshift'),
+        ui.button('removeAt', 'removeAt1'),
+        ui.button('addAt', 'addAt1'),
+        ui.button('replaceAt', 'replaceAt1'),
+        ui.button('reverse', 'reverse'),
+        ui.button('sort', 'sort'),
+        ui.button('clear', 'clear'),
+        ui.button('fetch', 'fetch'),
+        ui.layoutH(node.vm_list('vm', vmItemTemplate, vmItemData), 6),
+        ui.layoutV(node.vm_list('vm2', vmItemTemplate2, vmItemData)),
     ])
 
     // UI Interaction
@@ -76,7 +74,7 @@ export const p_introA = () => {
         store.fetch('https://localhost/api', vmItemData, true) // append data
     })
 
-    // on enter page, when no data, auto fetch data
+    // on enter page, when no data, it will automatically fetch data
     if (vmItemData.length == 0)
         store.fetch('https://localhost/api', vmItemData, false)
 

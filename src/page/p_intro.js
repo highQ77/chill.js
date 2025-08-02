@@ -10,7 +10,7 @@ export const p_intro = () => {
     let jsdom = node.div('hi').setChildren([
         node.div().setClass('p-1 bg-[#555]').setChildren(
             router.group('routerViewIntro', [
-                node.button('', 'Intro A', btnClass, 'index/intro/pageA'),
+                node.button('', 'Intro A', btnClass, 'index/intro/pageA').setStyle({ marginRight: '1px' }),
                 node.button('', 'Intro B', btnClass, 'index/intro/pageB')
             ])
         ),

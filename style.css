@@ -7,5 +7,5 @@ body {
 
 /* router buttons active state */
 .active {
-    border-bottom: 2px springgreen solid;
+    border-bottom: 1px springgreen solid;
 }

@@ -15,7 +15,7 @@ export const p_index = () => {
             ]),
             node.div().setClass('p-1 bg-[#555]').setChildren(
                 router.group('routerViewIndex', [
-                    node.button('', 'Home', btnClass, 'index/home'),
+                    node.button('', 'Home', btnClass, 'index/home').setStyle({ marginRight: '1px' }),
                     node.button('', 'Intro', btnClass, 'index/intro')
                 ])
             ),
