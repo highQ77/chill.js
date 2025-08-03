@@ -19,11 +19,11 @@ export const p_introA = () => {
     let jsdom = node.div('hiA').setStyle(style_hi).setChildren([
         node.span('sub').setText('MVVM').setClass('text-3xl'),
         node.hr(),
-        node.div().setText('single vm - single data, single view'),
+        node.div().setText('single vm - single data, single view 🟡'),
         ui.button('updateOne', 'update single item'),
         node.vm_single('oneItem', singleItemTemplate, oneItemData),
         node.hr(),
-        node.div().setText('many vms - same data, different view').setClass('mt-[20px]'),
+        node.div().setText('many vms - same data, different view 🟢 & 🔴').setClass('mt-[20px]'),
         ui.button('push', 'push'),
         ui.button('pop', 'pop'),
         ui.button('shift', 'shift'),
