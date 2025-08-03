@@ -259,6 +259,25 @@ class Div extends NodeBase {
 
 }
 
+class HRule extends NodeBase {
+
+    /** html tag instance */
+    __tag = document.createElement('hr')
+
+    constructor(tid) {
+        super()
+        tid && (this.__id = tid)
+        tid && this.__tag.setAttribute('tid', this.__id)
+        this.setStyle({ border: 'none', borderBottom: '1px solid #FFFFFF33', margin: '10px 0px' })
+    }
+
+    /** get html tag object */
+    getH5Tag() {
+        return this.__tag
+    }
+
+}
+
 class Span extends NodeBase {
 
     /** html tag instance */
@@ -266,6 +285,35 @@ class Span extends NodeBase {
 
     constructor(tid) {
         super()
+        tid && (this.__id = tid)
+        tid && this.__tag.setAttribute('tid', this.__id)
+    }
+
+    /** get html tag object */
+    getH5Tag() {
+        return this.__tag
+    }
+
+    /** set innerText, and setChildren can't work */
+    setText(str) {
+        this.__tag.innerText = str
+        return this
+    }
+
+    /** get text */
+    getText() {
+        return this.__tag.innerText
+    }
+}
+
+class Head extends NodeBase {
+    /** html tag instance */
+
+    constructor(tid, level = 1) {
+        super()
+        if (level < 0) level = 0
+        if (level > 6) level = 6
+        this.__tag = document.createElement('h' + level)
         tid && (this.__id = tid)
         tid && this.__tag.setAttribute('tid', this.__id)
     }
@@ -304,9 +352,7 @@ class Img extends NodeBase {
     }
 
     setSrc(src) {
-        if (location.host.indexOf('127') > -1 || location.host.indexOf('localhost') > -1)
-            this.__tag.src = location.protocol + '//' + location.host + '/assets/' + src;
-        else this.__tag.src = location.protocol + '//' + location.host + '/chill.js/assets/' + src;
+        this.__tag.src = node.getAssetsPath(src)
         return this
     }
 
@@ -344,7 +390,6 @@ class Input extends NodeBase {
     }
 
     remove() {
-        super.remove()
         if (this.__item.vms.length == 1) {
             this.__item.vms.length = 0 //
             this.__item.vms = null
@@ -352,6 +397,7 @@ class Input extends NodeBase {
         this.__item.update = null
         this.__item.length = 0
         delete this.__item
+        super.remove()
     }
 
     /** get html tag object */
@@ -420,7 +466,6 @@ class TextArea extends NodeBase {
     }
 
     remove() {
-        super.remove()
         if (this.__item.vms.length == 1) {
             this.__item.vms.length = 0 //
             this.__item.vms = null
@@ -428,6 +473,7 @@ class TextArea extends NodeBase {
         this.__item.update = null
         this.__item.length = 0
         delete this.__item
+        super.remove()
     }
 
     /** get html tag object */
@@ -459,6 +505,47 @@ class TextArea extends NodeBase {
         this.__tag.value = this.value;
     }
 
+}
+
+class Canvas extends NodeBase {
+
+    /** html tag instance */
+    __tag = document.createElement('canvas')
+    __ctx
+
+    constructor(tid) {
+        super()
+        tid && (this.__id = tid)
+        tid && this.__tag.setAttribute('tid', this.__id)
+        this.setSize(250, 250)
+        this.__ctx = this.__tag.getContext('2d')
+    }
+
+    remove() {
+        this.__ctx = null
+        super.remove()
+    }
+
+    /** get html tag object */
+    getH5Tag() {
+        return this.__tag
+    }
+
+    getContext() {
+        return this.__ctx
+    }
+
+    setSize(w, h) {
+        let c = this.getH5Tag()
+        c.width = w
+        c.height = h
+        return this
+    }
+
+    setupDrawCode(func) {
+        func(this.__ctx)
+        return this
+    }
 }
 
 class FilePicker extends NodeBase {
@@ -533,6 +620,13 @@ class DatePicker extends Div {
         // tid && this.__tag.setAttribute('tid', this.__id)
         this.__dateClass = dateClass
         this.__setup()
+    }
+
+    remove() {
+        super.remove()
+        // __dateClass = null
+        // __dateArray.length = 0
+        // __dateArray = null
     }
 
     __setup() {
@@ -690,15 +784,132 @@ class DatePicker extends Div {
 }
 
 class ColorPicker extends Div {
-    constructor(dateClass) {
+
+    __isMouseDown = false
+    __singleColor //canvas
+    __allColor //canvas
+    __currentColor // no-color
+    __colorLabel // label
+    __hexColorLabel // label
+    __input // input
+    x = 255 - 1
+    y = 0
+    event = null
+
+    constructor(colorClass) {
         super()
         // tid && (this.__id = tid)
         // tid && this.__tag.setAttribute('tid', this.__id)
-        this.__setup()
+        this.__colorClass = colorClass
     }
 
-    __setup() {
+    remove() {
+        this.__singleColor = null
+        this.__allColor = null
+        this.__currentColor = null
+        this.__colorLabel = null
+        this.__hexColorLabel = null
+        this.__input = null
+        this.__dialog = null
+        super.remove()
+    }
 
+    __createSingleColorSpectrum(color = 'red') {
+        let ctx = this.__singleColor.getContext()
+        let canvas = ctx.canvas
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!color) color = '#f00'
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let whiteGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        whiteGradient.addColorStop(0, "#fff");
+        whiteGradient.addColorStop(1, "transparent");
+        ctx.fillStyle = whiteGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let blackGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        blackGradient.addColorStop(0, "transparent");
+        blackGradient.addColorStop(1, "#000");
+        ctx.fillStyle = blackGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        this.__singleColor.on('mousedown', e => { this.__isMouseDown = true, this.__spectrumClick(e) })
+        this.__singleColor.on('mousemove', e => { this.__isMouseDown && this.__spectrumClick(e) })
+        this.__singleColor.on('mouseup', e => { this.__isMouseDown = false, this.__spectrumClick(e) })
+        this.__singleColor.on('mouseleave', _ => { this.__isMouseDown = false })
+    }
+
+    __createMultiColorSpectrum() {
+        let ctx = this.__allColor.getContext()
+        let canvas = ctx.canvas
+
+        let hueGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        hueGradient.addColorStop(0.00, "#ff0000");
+        hueGradient.addColorStop(0.17, "#ff00ff");
+        hueGradient.addColorStop(0.33, "#0000ff");
+        hueGradient.addColorStop(0.50, "#00ffff");
+        hueGradient.addColorStop(0.67, "#00ff00");
+        hueGradient.addColorStop(0.83, "#ffff00");
+        hueGradient.addColorStop(1.00, "#ff0000");
+
+        ctx.fillStyle = hueGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        this.__allColor.on('mousedown', e => { this.__isMouseDown = true, this.__hueClick(e) })
+        this.__allColor.on('mousemove', e => { this.__isMouseDown && this.__hueClick(e) })
+        this.__allColor.on('mouseup', e => { this.__isMouseDown = false, this.__hueClick(e) })
+        this.__allColor.on('mouseleave', _ => { this.__isMouseDown = false })
+    }
+
+    __hueClick(e) {
+        let y = e ? (e.pageY - this.__getTop(e.currentTarget) - window.scrollY) : this.y;
+        const allColorContext = this.__allColor.getContext()
+        let imgData = allColorContext.getImageData(0, y, 1, 1).data;
+        this.__createSingleColorSpectrum('rgb(' + imgData[0] + ', ' + imgData[1] + ', ' + imgData[2] + ')');
+        this.__spectrumClick(null)
+    }
+
+    __spectrumClick(e) {
+        let x = e ? (e.pageX - this.__getLeft(e.currentTarget)) : this.x;
+        let y = e ? (e.pageY - this.__getTop(e.currentTarget) - window.scrollY) : this.y;
+        const singleColorContext = this.__singleColor.getContext()
+        let imgData = singleColorContext.getImageData(x, y, 1, 1).data;
+        this.__currentColor.setStyle({ background: `rgb(${imgData[0]}, ${imgData[1]}, ${imgData[2]})` })
+        this.__colorLabel.setText(`rgb(${imgData[0]}, ${imgData[1]}, ${imgData[2]})`)
+        this.__hexColorLabel.setText(this.__rgbToHex(imgData[0], imgData[1], imgData[2]))
+        this.x = x
+        this.y = y
+        this.event = e
+    }
+
+    __getLeft(obj) {
+        let offset = obj.offsetLeft;
+        if (obj.offsetParent != null) offset += this.__getLeft(obj.offsetParent);
+        return offset;
+    }
+
+    __getTop(obj) {
+        let offset = obj.offsetTop;
+        if (obj.offsetParent != null) offset += this.__getTop(obj.offsetParent);
+        return offset;
+    }
+
+    __componentToHex = (c) => {
+        const hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    __rgbToHex = (r, g, b) => {
+        return "#" + this.__componentToHex(r) + this.__componentToHex(g) + this.__componentToHex(b);
+    }
+
+    reset() {
+        this.x = 255 - 1
+        this.y = 0
+        this.__hueClick(null)
     }
 }
 
@@ -742,13 +953,13 @@ class VMList extends Div {
             this.pushChild(item)
             items[items.length] = item
             items.update()
-            items.isZero = false // 🟠
+            items.isZero = false
             return pushRef(item)
         }
 
         // initialize
-        items.forEach(item => {
-            this.pushChild(item)
+        items.forEach((item, idx) => {
+            this.pushChild(item, idx)
         })
 
         // pop
@@ -759,7 +970,7 @@ class VMList extends Div {
                 this.popChild()
                 items.length = items.length - 1
                 items.update()
-                if (items.length == 0) items.isZero = true // 🟠
+                if (items.length == 0) items.isZero = true
                 return popRef()
             } else return null
         }
@@ -777,7 +988,7 @@ class VMList extends Div {
                 }
                 items.length = items.length - 1
                 items.update()
-                if (items.length == 0) items.isZero = true // 🟠
+                if (items.length == 0) items.isZero = true
                 return shiftRef()
             } else return null
         }
@@ -792,7 +1003,7 @@ class VMList extends Div {
             }
             items[0] = item
             items.update()
-            items.isZero = false // 🟠
+            items.isZero = false
             return unshiftRef(item)
         }
 
@@ -957,13 +1168,13 @@ class VMSingle extends Div {
             this.pushChild(item)
             items[items.length] = item
             items.update()
-            items.isZero = false // 🟠
+            items.isZero = false
             return pushRef(item)
         }
 
         // initialize
-        items.forEach(item => {
-            this.pushChild(item)
+        items.forEach((item, idx) => {
+            this.pushChild(item, idx)
         })
 
         // pop
@@ -974,7 +1185,7 @@ class VMSingle extends Div {
                 this.popChild()
                 items.length = items.length - 1
                 items.update()
-                if (items.length == 0) items.isZero = true // 🟠
+                if (items.length == 0) items.isZero = true
                 return popRef()
             } else return null
         }
@@ -1039,14 +1250,27 @@ const dialog = (title, contentNode, buttons = [], essentialDialogStyle, width, h
     container.pushChild(btnGroup)
     transparentCover.pushChild(container)
     node.app().pushChild(transparentCover)
+
     // escape
     let quit = e => {
         if (e.key == 'Escape') {
             transparentCover.remove(); callback(false)
-            document.removeEventListener('keyup', quit)
         }
     }
     document.addEventListener('keyup', quit)
+
+    // observe dom status
+    const observer = new MutationObserver((mutation) => {
+        if (!document.body.contains(transparentCover.getH5Tag())) {
+            observer.disconnect()
+            document.body.style.overflow = 'auto' // enable scrolling
+            document.removeEventListener('keyup', quit)
+        }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    document.body.style.overflow = 'hidden' // stop scrolling
+
     return transparentCover
 }
 
@@ -1114,6 +1338,56 @@ const date = (essentialDialogStyle, dateClass, width, height, callback) => {
     buttons.push(reset)
     buttons.push(btn)
     let dig = dialog('Date Picker', content, buttons, essentialDialogStyle, width, height, callback)
+    return dig
+}
+
+const color = (essentialDialogStyle, colorClass, width, height, callback) => {
+    let { dialogButtonClass } = essentialDialogStyle
+
+    let content = (new ColorPicker(colorClass)).setChildren([
+        node.div().setStyle({ display: 'inline-flex', background: '#333', }).setChildren([
+            node.canvas('singleColor').setSize(255, 255).setupDrawCode(ctx => { ctx.fillStyle = '#333'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height) }),
+            node.canvas('allColor').setSize(40, 255).setupDrawCode(ctx => { ctx.fillStyle = '#666'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height) })
+        ]),
+        node.div().setStyle({ display: 'flex', justifyContent: 'space-between' }).setChildren([
+            node.div().setStyle({ display: 'flex' }).setChildren([
+                node.div('currentColor').setStyle({
+                    display: 'inline-flex',
+                    width: '25px',
+                    height: '25px',
+                    background: 'red',
+                    borderRadius: '4px',
+                    border: '1px solid white',
+                    outline: '1px solid gray',
+                    marginLeft: '7px'
+                })
+            ]),
+            node.div().setStyle({ display: 'flex' }).setChildren([
+                node.div('colorLabel').setText('rgb(255,0,0)').setStyle({ padding: '0 2px', width: '155px', background: '#CCC', borderRight: '1px solid #333' }),
+                node.div('hexColorLabel').setText('#ff0000').setStyle({ padding: '0 2px', width: '95px', background: '#CCC' }),
+            ])
+        ])
+    ])
+    content.__singleColor = content.getChildById('singleColor').setStyle({ cursor: 'crosshair' })
+    content.__allColor = content.getChildById('allColor').setStyle({ cursor: 'crosshair' })
+    content.__currentColor = content.getChildById('currentColor')
+    content.__colorLabel = content.getChildById('colorLabel')
+    content.__hexColorLabel = content.getChildById('hexColorLabel')
+    content.__createSingleColorSpectrum('red')
+    content.__createMultiColorSpectrum()
+
+    let buttons = []
+    let btn = node.button('', 'OK', dialogButtonClass)
+    let reset = node.button('', 'Reset', dialogButtonClass)
+    btn.on('click', () => {
+        let imgData = content.__singleColor.getContext().getImageData(content.x, content.y, 1, 1).data;
+        dig.remove()
+        callback({ r: imgData[0], g: imgData[1], b: imgData[2] })
+    })
+    reset.on('click', () => content.reset())
+    buttons.push(reset)
+    buttons.push(btn)
+    let dig = dialog('Color Picker', content, buttons, essentialDialogStyle, width, height, callback)
     return dig
 }
 
@@ -1294,8 +1568,23 @@ function proxy(storeField) {
     return items
 }
 
+// assets' path
+function getAssetsPath(assetSrc) {
+    if (location.host.indexOf('127.0.0.1') > -1 || location.host.indexOf('localhost') > -1)
+        return location.protocol + '//' + location.host + '/assets/' + assetSrc;
+    else if (location.host.indexOf('github') > -1)
+        return location.protocol + '//' + location.host + '/chill.js/assets/' + assetSrc;
+    return ''
+}
+
+// divimg
+function divimg(id, src) {
+    return node.div(id).setStyle({ background: `url(${getAssetsPath(src)})` })
+}
+
 /** node is a core functions set, which can build basic ui */
 export const node = {
+    getAssetsPath,
     /** 取得目前頁面所有有 tid 的物件，適用於跨不同層級元件呼叫使用 */
     getPageNodes: () => nodes,
     /** 取得目前頁面指定 tid 的物件，適用於跨不同層級元件呼叫使用 */
@@ -1306,8 +1595,16 @@ export const node = {
     div: (id) => new Div(id),
     /** 取得 span 節點 */
     span: (id) => new Span(id),
+    /** 取得 水平線 節點 */
+    hr: (id) => new HRule(id),
+    /** 取得 h1 ~ h6 節點 */
+    h: (id, level) => new Head(id, level),
     /** 取得 img 節點 */
     img: (id) => new Img(id),
+    /** 取得 div img 節點 */
+    divimg,
+    /** 取得 canvas 節點 */
+    canvas: (id) => new Canvas(id),
     /** 取得 vm input 節點 */
     vm_input: (id, data, type) => new Input(id, data, type), // model view
     /** 取得 vm textarea 節點 */
@@ -1324,6 +1621,8 @@ export const node = {
     dialog,
     /** 日期選擇器 */
     date,
+    /** 顏色選擇器 */
+    color,
     /** dialog 延伸的警告視窗 */
     alert,
     /** dialog 延伸的確認視窗 */

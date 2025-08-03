@@ -5,30 +5,35 @@ import { ui } from "../custom/ui.js"
 export const p_introB = () => {
 
     // custom css style
-    let style_hi = { width: '100vw', background: 'rgba(9, 81, 71, 0.56)', fontSize: '24px', padding: '10px' }
+    let style_hi = { width: '100vw', minHeight: 'calc(100vh - 150px)', background: '#000000', padding: '10px' }
 
     // ViewModel datas
     const oneItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')
     const oneItemData = node.proxy(store.data.p_introB.textAreaTest)
 
     // UI DOM Build
-    let jsdom = node.div('hiB').setStyle(style_hi).setChildren([
-        node.span('sub').setText('Tab B'),
+    let jsdom = node.div().setStyle(style_hi).setChildren([
+        node.span('sub').setText('Misc.').setClass('text-3xl'),
         node.div().setChildren([
-            node.div().setText('🟢------dialogs----- '),
+            node.hr(),
+            node.div().setText('dialogs'),
             ui.button('alert', 'alert'),
             ui.button('confirm', 'confirm'),
             ui.button('date', 'datePicker'),
-            node.div().setText('🟢------node----- '),
+            ui.button('color', 'colorPicker'),
+            node.hr(),
+            node.div().setText('node'),
             ui.button('all', 'all nodes log in console panel'),
-            node.div().setText('🟢------input test----- '),
+            node.hr(),
+            node.div().setText('input'),
             node.vm_textarea('textarea', oneItemData).setClass('bg-[#666] border-5').setPlaceholder('this is textarea'),
             node.vm_single('', oneItemTemplate, oneItemData),
             node.vm_input('textInput', oneItemData, 'text').setClass('bg-[#666] border-5').setPlaceholder('this is text input'),
             ui.button('text', 'text'),
             ui.button('password', 'password'),
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
-            node.div().setText('🟢------img----- '),
+            node.hr(),
+            node.div().setText('image'),
             node.img('testimg').setSrc('sample.png'),
         ])
     ])
@@ -48,7 +53,10 @@ export const p_introB = () => {
         ui.confirm('This is confirm window', '350px', '150px', result => console.log(result))
     })
     jsdom.getChildById('date').on('click', (e, t) => {
-        ui.date(result => t.setText(result))
+        ui.date(result => result && t.setText(result))
+    })
+    jsdom.getChildById('color').on('click', (e, t) => {
+        ui.color(color => t.setStyle({ background: `rgb(${color.r}, ${color.g},${color.b}` }))
     })
 
     // 不同層級元件溝通

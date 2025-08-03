@@ -4,23 +4,30 @@ import { router } from "../core/router.js"
 export const p_index = () => {
 
     // custom css class
-    const btnClass = 'bg-cyan-500 inline-flex p-2 cursor-pointer hover:bg-black'
+    const btnClass = 'inline-flex p-2 cursor-pointer hover:bg-[#333]'
 
     // UI DOM Build
     let jsdom = node.div().setClass('text-white bg-black').setChildren([
-        node.div('navBar').setClass('flex justify-between p-3').setChildren([
-            node.div('title').setChildren([
+        // topbar
+        node.div('navBar').setClass('flex justify-between items-center p-1').setChildren([
+            node.div('title').setClass('cursor-pointer').setChildren([
                 node.span().setClass('text-3xl font-bold underline').setText('chill.js'),
-                node.span().setClass('text-[yellowgreen]').setText(' v0.1'),
+                node.span().setClass('text-[springgreen]').setText(' v0.1'),
             ]),
-            node.div().setClass('p-1 bg-[#555]').setChildren(
+            node.div().setClass('mr-[10px]').setChildren(
                 router.group('routerViewIndex', [
                     node.button('', 'Home', btnClass, 'index/home').setStyle({ marginRight: '1px' }),
                     node.button('', 'Intro', btnClass, 'index/intro')
                 ])
             ),
         ]),
-        node.div('routerViewIndex').setClass('clear-both')
+        node.div('').setClass('clear-both h-[3px] bg-[#333]'),
+        // content
+        node.div('routerViewIndex'), // id == routerViewIndex match with router.group('router.group', [...]) 
+        // footer
+        node.div('div').setClass('h-[50px] bg-black flex justify-center items-center').setChildren([
+            node.span().setText('powered by william77').setClass('text-[#666]')
+        ])
     ])
 
     // UI Interaction

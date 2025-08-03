@@ -5,22 +5,25 @@ import { ui } from "../custom/ui.js"
 export const p_introA = () => {
 
     // custom css style
-    let style_hi = { width: '100vw', height: '100vh', background: 'rgba(110, 53, 0, 0.5)', fontSize: '24px', padding: '10px' }
+    let style_hi = { width: '100vw', minHeight: 'calc(100vh - 150px)', background: '#000000', padding: '10px' }
 
     // ViewModel item template and datas
-    const vmItemTemplate = (item, index) => node.div().setText(index + ' listItem ' + item.fruit + ' price $' + item.price).setClass('p-1 m-1 bg-[#337733]')
-    const vmItemTemplate2 = (item, index) => node.div().setText(index + ' listItem ' + item.fruit + ' price $' + item.price).setClass('p-1 m-1 bg-[#AA3333]')
+    const vmItemTemplate = (item, index) => node.div().setText(index + ' ' + item.fruit + ' price $' + item.price).setClass('p-1 m-1 bg-[#337733]')
+    const vmItemTemplate2 = (item, index) => node.div().setText(index + ' ' + item.fruit + ' price $' + item.price).setClass('p-1 m-1 bg-[#AA3333]')
     const singleItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')
     const vmItemData = node.proxy(store.data.p_introA.fruit)
     const oneItemData = node.proxy(store.data.p_introA.single)
+    // const testSingleData = node.proxy(['hi']) // use testSingleData[0] to get or set value
 
     // UI DOM Build
     let jsdom = node.div('hiA').setStyle(style_hi).setChildren([
-        node.span('sub').setText('Tab A - MVVM test'),
-        node.div().setText('🟢------single vm----- single data, single view'),
+        node.span('sub').setText('MVVM').setClass('text-3xl'),
+        node.hr(),
+        node.div().setText('single vm - single data, single view'),
         ui.button('updateOne', 'update single item'),
         node.vm_single('oneItem', singleItemTemplate, oneItemData),
-        node.div().setText('🟢------many vms----- same data, different view'),
+        node.hr(),
+        node.div().setText('many vms - same data, different view').setClass('mt-[20px]'),
         ui.button('push', 'push'),
         ui.button('pop', 'pop'),
         ui.button('shift', 'shift'),
