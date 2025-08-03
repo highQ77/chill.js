@@ -23,7 +23,7 @@ export const p_index = () => {
         ]),
         node.div('').setClass('clear-both h-[3px] bg-[#333]'),
         // content
-        node.div('routerViewIndex'), // id == routerViewIndex match with router.group('router.group', [...]) 
+        node.div('routerViewIndex'), // id == routerViewIndex match with router.group('routerViewIndex', [...]) 
         // footer
         node.div('div').setClass('h-[50px] bg-black flex justify-center items-center').setChildren([
             node.span().setText('powered by william77').setClass('text-[#666]')

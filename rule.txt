@@ -1,18 +1,3 @@
-
-node.div().setText('🟠 src / config.js 進行 router 與 store 設定'),
-node.div().setText('🟠 src / page 下新增頁面 '),
-node.div().setText('🟠 node.app 取得 app 物件'),
-node.div().setText('🟠 node.div 適合介面板塊設計'),
-node.div().setText('🟠 node.span 適合文字區塊設計'),
-node.div().setText('🟠 node.img 圖片'),
-node.div().setText('🟠 node.button router 按鈕或一般按鈕'),
-node.div().setText('🟠 node.file 檔案選取器'),
-node.div().setText('🟠 node.vm_input 輸入物件，為 MVVM，資料為 proxy'),
-node.div().setText('🟠 node.vm_textarea 輸入物件，為 MVVM，資料為 proxy'),
-node.div().setText('🟠 node.vm_list MVVM 列表 (extends node.div)，資料為 proxy'),
-node.div().setText('🟠 node.vm_single MVVM 單一物件 (extends node.div)，資料為 proxy'),
-node.div().setText('🟡 node.proxy 資料轉為 MVVM 模式'),
-
 // 作者 梁紘謙 William77 (威廉) 2025/07/31
 
 // [todo]
@@ -44,6 +29,7 @@ node.div().setText('🟡 node.proxy 資料轉為 MVVM 模式'),
 // 🟠 node.span 適合文字區塊設計
 // 🟠 node.img 圖片
 // 🟠 node.button router 按鈕或一般按鈕
+// 🟠 node.file 檔案選取器
 // 🟠 node.vm_input 輸入物件
 // 🟠 node.vm_textarea 輸入物件
 // 🟠 node.vm_list MVVM 列表 (extends node.div)
@@ -55,7 +41,6 @@ node.div().setText('🟡 node.proxy 資料轉為 MVVM 模式'),
 // ✅ xx.getChildById('app') 就是抓取物件樹中有 tid 為 app 的物件
 // ✅ css class .active - 可設置 router button 的選中中的狀態樣式
 // ✅ node.mv 採 mvvm 的物件設計，同步 model 與 view，請參考 src/page/p_introA.js
-
 
 [js 類別權限設計部分]
 

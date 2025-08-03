@@ -4,6 +4,12 @@ import { p_intro } from "./page/p_intro.js";
 import { p_introA } from "./page/p_introA.js";
 import { p_introB } from "./page/p_introB.js";
 
+// ❤️ 新專案注意事項
+// src/config.js router ＆ store 內容皆可刪
+// src/core 內的程式碼不要動
+// src/custom 內 ui.js 可以更改樣式，想自己刻 ui 可以自己新增 yourUiName.js
+// src/page 下全刪沒問題
+
 export const config = {
     router: {
         // 'pageId': { page: your jsdom template, default: 'default sub router path' }
