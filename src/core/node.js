@@ -1155,7 +1155,7 @@ class VMSingle extends Div {
 
         items.vms = items.vms || []
         items.vms.push(this)
-        items.update = () => this.__update(items)
+        items.update = () => items.vms.forEach(vm => vm.__update(items))
 
         items.first = this
         items.state = []

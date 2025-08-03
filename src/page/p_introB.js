@@ -26,7 +26,6 @@ export const p_introB = () => {
             ui.button('all', 'all nodes log in console panel'),
             node.hr(),
             node.div().setText('input'),
-            // bug - textInput place here, 💔
             node.vm_textarea('textarea', oneItemData).setClass('bg-black p-2 border-1 border-[springgreen] rounded-sm').setPlaceholder('this is textarea'),
             node.vm_single('', oneItemTemplate, oneItemData),
             node.vm_input('textInput', oneItemData, 'text').setClass('bg-black p-2 mr-2 border-1 border-[springgreen] rounded-sm').setPlaceholder('this is text input'),
