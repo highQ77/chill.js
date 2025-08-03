@@ -1,9 +1,9 @@
 import { node } from "../core/node.js"
 
-let globalColor = 'slate-500'
+let globalColor = 'slate-800'
 
 // ---------------- Button
-const buttonClass = `bg-${globalColor} inline-flex p-2 cursor-pointer hover:bg-black m-1 rounded-sm select-none`
+const buttonClass = `bg-${globalColor} inline-flex p-2 cursor-pointer hover:bg-[#FFFFFF22] border-1 border-[transparent] hover:border-b-[springgreen] m-1 rounded-sm select-none`
 function button(tid, label, pageId, activeClassName = 'active') {
     return node.button(tid, label, buttonClass, pageId, activeClassName)
 }

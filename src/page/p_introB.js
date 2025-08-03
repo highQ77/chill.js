@@ -26,15 +26,16 @@ export const p_introB = () => {
             ui.button('all', 'all nodes log in console panel'),
             node.hr(),
             node.div().setText('input'),
-            node.vm_textarea('textarea', oneItemData).setClass('bg-[#666] border-5').setPlaceholder('this is textarea'),
+            // bug - textInput place here, 💔
+            node.vm_textarea('textarea', oneItemData).setClass('bg-black p-2 border-1 border-[springgreen] rounded-sm').setPlaceholder('this is textarea'),
             node.vm_single('', oneItemTemplate, oneItemData),
-            node.vm_input('textInput', oneItemData, 'text').setClass('bg-[#666] border-5').setPlaceholder('this is text input'),
+            node.vm_input('textInput', oneItemData, 'text').setClass('bg-black p-2 mr-2 border-1 border-[springgreen] rounded-sm').setPlaceholder('this is text input'),
             ui.button('text', 'text'),
             ui.button('password', 'password'),
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
             node.hr(),
             node.div().setText('image'),
-            node.img('testimg').setSrc('sample.png'),
+            node.img('testimg').setSrc('sample.png').setClass('rounded-sm'),
         ])
     ])
 
