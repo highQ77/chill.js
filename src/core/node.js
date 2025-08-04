@@ -1229,18 +1229,19 @@ class VMSingle extends Div {
 
 // scroller 
 const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffsetTrackX, contentNode) => {
+    if (!id) id = (Date.now() + '').slice(7) + (Math.random().toFixed(3) + '').split('.')[1] // 防止 id 衝突
     const scro = node.div(id).setStyle({ position: 'relative' }).setChildren([
-        node.div('__contentWrapper').setStyle({ position: 'relative', width: cssWidth, height: cssHeight, overflow: 'auto' }).setChildren([
-            node.div('__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' }).setChildren([contentNode]),
+        node.div(id + '__contentWrapper').setStyle({ position: 'relative', width: cssWidth, height: cssHeight, overflow: 'auto' }).setChildren([
+            node.div(id + '__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' }).setChildren([contentNode]),
         ]),
-        node.div('__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `-${cssOffsetTrackX}`, transition: 'opacity .2s', overflow: 'hidden' }).setChildren([
-            node.div('__thumb').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
+        node.div(id + '__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `-${cssOffsetTrackX}`, transition: 'opacity .2s', overflow: 'hidden' }).setChildren([
+            node.div(id + '__thumb').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
         ])
     ])
-    const bar = scro.getChildById('__bar')
-    const thumb = scro.getChildById('__thumb')
-    const content = scro.getChildById('__content')
-    const wrapper = scro.getChildById('__contentWrapper')
+    const bar = scro.getChildById(id + '__bar')
+    const thumb = scro.getChildById(id + '__thumb')
+    const content = scro.getChildById(id + '__content')
+    const wrapper = scro.getChildById(id + '__contentWrapper')
     const scrollfunc = e => {
         let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
         let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
