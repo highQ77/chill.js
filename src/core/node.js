@@ -1271,7 +1271,7 @@ const dialog = (title, contentNode, buttons = [], essentialDialogStyle, width, h
     let transparentCover = node.div().setStyle({
         display: 'flex',
         width: '100vw',
-        height: '100vh',
+        height: '100dvh',
         position: 'fixed',
         left: '0px',
         top: '0px',

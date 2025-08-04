@@ -5,7 +5,7 @@ import { ui } from "../custom/ui.js"
 export const p_introB = () => {
 
     // custom css style
-    let style_hi = { width: '100vw', minHeight: 'calc(100vh - 150px)', background: '#000000', padding: '10px' }
+    let style_hi = { width: '100vw', minHeight: 'calc(100dvh - 150px)', background: '#000000', padding: '10px' }
 
     // ViewModel datas
     const oneItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')

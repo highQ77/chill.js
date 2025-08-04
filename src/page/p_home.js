@@ -16,7 +16,7 @@ export const p_home = () => {
     const itemsData = node.proxy(store.data.p_index.featureList)
 
     // UI DOM Build
-    let jsdom = node.divimg('', 'swril.jpg').setClass('h-[600px] flex items-end pb-[30px]').setStyle({ minHeight: 'calc(100vh - 102px)' }).setChildren([
+    let jsdom = node.divimg('', 'swril.jpg').setClass('h-[600px] flex items-end pb-[30px]').setStyle({ minHeight: 'calc(100dvh - 102px)' }).setChildren([
         node.div().setClass('bg-[#00000099] backdrop-blur-sm p-5 h-[450px] overflow-hidden').setChildren([
             node.h('', 1).setClass('text-3xl').setText('歡迎使用 chill.js 超簡單 SPA 框架'),
             node.div().setClass('text-[springgreen]').setText(' easy all-in-one ( jsdom / mvvm / store / router ) javascript framework'),

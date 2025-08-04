@@ -5,7 +5,7 @@ import { ui } from "../custom/ui.js"
 export const p_introA = () => {
 
     // custom css style
-    let style_hi = { width: '100vw', minHeight: 'calc(100vh - 150px)', background: '#000000', padding: '10px' }
+    let style_hi = { width: '100vw', minHeight: 'calc(100dvh - 150px)', background: '#000000', padding: '10px' }
 
     // ViewModel item template and datas
     const vmItemTemplate = (item, index) => node.div().setText(index + ' ' + item.fruit + ' price $' + item.price).setClass('p-1 m-1 bg-[#337733]')
