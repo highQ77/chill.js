@@ -1227,6 +1227,43 @@ class VMSingle extends Div {
 
 // --------------------------------------------------------UI Base----------------------------------------------------------------
 
+// scroller
+const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffsetTrackX, contentNode) => {
+    const scro = node.div(id).setStyle({ position: 'relative' }).setChildren([
+        node.div('__contentWrapper').setStyle({ position: 'relative', width: cssWidth, height: cssHeight, overflow: 'auto' }).setChildren([
+            node.div('__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' }).setChildren([contentNode]),
+        ]),
+        node.div('__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `-${cssOffsetTrackX}`, transition: 'opacity .2s', overflow: 'hidden' }).setChildren([
+            node.div('__thumb').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
+        ])
+    ])
+    const bar = scro.getChildById('__bar')
+    const thumb = scro.getChildById('__thumb')
+    const content = scro.getChildById('__content')
+    const wrapper = scro.getChildById('__contentWrapper')
+    const scrollfunc = e => {
+        let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
+        let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+        let ratio = contentHeight / contentNodeHeight
+        let top = wrapper.getH5Tag().scrollTop * ratio
+        let emptyspace = contentHeight * (1 - ratio) - 1.5
+        if (top < 1.5) top = 1.5
+        else if (top > emptyspace) top = emptyspace
+        thumb.setStyle({ height: contentHeight * ratio + 'px', top: top + 'px' })
+    }
+    wrapper.on('scroll', scrollfunc)
+    scro.on('mouseenter', () => {
+        let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
+        let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+        if (Math.abs(contentHeight - contentNodeHeight) >= 2)
+            bar.setStyle({ opacity: '1' }); scrollfunc()
+    })
+    scro.on('mouseleave', () => { bar.setStyle({ opacity: '0' }); })
+    bar.setStyle({ opacity: '0' })
+
+    return scro
+}
+
 // dialog
 const dialog = (title, contentNode, buttons = [], essentialDialogStyle, width, height, callback) => {
     let { dialogTitleClass, dialogBodyClass, dialogBottonGroupClass, dialogButtonClass } = essentialDialogStyle
@@ -1392,8 +1429,8 @@ const color = (essentialDialogStyle, colorClass, width, height, callback) => {
 }
 
 // essential button. if you set pageId, then you will switch to router mode
-const button = (tid, label, className, pageId, activeClassName = 'active') => {
-    const btn = node.div(tid).setClass(className).setText(label)
+const button = (id, label, className, pageId, activeClassName = 'active') => {
+    const btn = node.div(id).setClass(className).setText(label)
     btn.routerPageId = pageId
     if (pageId) {
         btn.on('click', () => router.go(pageId))
@@ -1615,6 +1652,8 @@ export const node = {
     vm_single: (id, item_tpl, datas) => new VMSingle(id, item_tpl, datas), // model view
     /** 生成檔案選取按鈕 */
     file: (id, label, className, readerMode, callback) => new FilePicker(id, label, className, readerMode, callback),
+    /** 滾動條 */
+    scroller,
     /** 一般按鈕或是路由按鈕 */
     button,
     /** 對話框基底 */
