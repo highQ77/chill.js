@@ -1227,14 +1227,16 @@ class VMSingle extends Div {
 
 // --------------------------------------------------------UI Base----------------------------------------------------------------
 
+const getUniqueId = () => (Date.now() + '').slice(7) + (Math.random().toFixed(3) + '').split('.')[1] // 防止 id 衝突
+
 // scroller 
 const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffsetTrackX, contentNode) => {
-    if (!id) id = (Date.now() + '').slice(7) + (Math.random().toFixed(3) + '').split('.')[1] // 防止 id 衝突
+    if (!id) id = getUniqueId()
     const scro = node.div(id).setStyle({ position: 'relative' }).setChildren([
         node.div(id + '__contentWrapper').setStyle({ position: 'relative', width: cssWidth, height: cssHeight, overflow: 'auto' }).setChildren([
             node.div(id + '__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' }).setChildren([contentNode]),
         ]),
-        node.div(id + '__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `-${cssOffsetTrackX}`, transition: 'opacity .2s', overflow: 'hidden' }).setChildren([
+        node.div(id + '__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `${cssOffsetTrackX}`, transition: 'opacity .2s', overflow: 'hidden' }).setChildren([
             node.div(id + '__thumb').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
         ])
     ])
@@ -1242,25 +1244,85 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffs
     const thumb = scro.getChildById(id + '__thumb')
     const content = scro.getChildById(id + '__content')
     const wrapper = scro.getChildById(id + '__contentWrapper')
+
+    let timeId
+    let preTop
+
     const scrollfunc = e => {
         let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
         let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+
+        if (Math.abs(contentHeight - contentNodeHeight) < 2) return
+
         let ratio = contentHeight / contentNodeHeight
         let top = wrapper.getH5Tag().scrollTop * ratio
         let emptyspace = contentHeight * (1 - ratio) - 1.5
         if (top < 1.5) top = 1.5
         else if (top > emptyspace) top = emptyspace
         thumb.setStyle({ height: contentHeight * ratio + 'px', top: top + 'px' })
+
+        // hide the scrollbar, when the mouse stop moving for 2 seconds
+        if (timeId == null && top == preTop && bar.getH5Tag().style.opacity == '1') {
+            timeId = setTimeout(() => {
+                bar.setStyle({ opacity: '0' })
+                timeId = null
+                let mm = () => {
+                    scro.off('mousemove', mm)
+                    bar.setStyle({ opacity: '1' })
+                }
+                scro.on('mousemove', mm)
+                let mm2 = () => {
+                    clearTimeout(timeId)
+                    timeId = setTimeout(() => {
+                        scro.off('mousemove', mm2)
+                        bar.setStyle({ opacity: '0' })
+                        timeId = null
+                    }, 2000)
+                }
+                scro.on('mousemove', mm2)
+            }, 2000)
+        }
+        bar.setStyle({ opacity: '1' })
+        console.log(top, preTop)
+        preTop = top
     }
+
+    // scroll events
     wrapper.on('scroll', scrollfunc)
+    wrapper.on('mousemove', scrollfunc)
     scro.on('mouseenter', () => {
         let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
         let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
-        if (Math.abs(contentHeight - contentNodeHeight) >= 2)
-            bar.setStyle({ opacity: '1' }); scrollfunc()
+        if (Math.abs(contentHeight - contentNodeHeight) >= 2) {
+            bar.setStyle({ opacity: '1' })
+            scrollfunc()
+        }
     })
     scro.on('mouseleave', () => { bar.setStyle({ opacity: '0' }); })
-    bar.setStyle({ opacity: '0' })
+
+    // observer content height
+    const observer = new ResizeObserver(() => {
+        if (!content.getH5Tag()) return
+        let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
+        let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+        if (Math.abs(contentHeight - contentNodeHeight) > 2) {
+            bar.setStyle({ opacity: '1' })
+        } else {
+            bar.setStyle({ opacity: '0' })
+        }
+        scrollfunc()
+    })
+    observer.observe(contentNode.getH5Tag())
+
+    // page leave watcher
+    let storeHref = location.href
+    let pageObserver = () => {
+        if (location.href != storeHref) {
+            observer.disconnect()
+            window.removeEventListener('popstate', pageObserver)
+        }
+    }
+    window.addEventListener('popstate', pageObserver)
 
     return scro
 }
@@ -1447,6 +1509,11 @@ const button = (id, label, className, pageId, activeClassName = 'active') => {
     return btn
 }
 
+// 🟠 preparing
+const pageer = (id, proxyData) => {
+    if (!id) id = getUniqueId()
+}
+
 //  proxy prop watcher
 function proxy(storeField) {
 
@@ -1622,6 +1689,7 @@ function divimg(id, src) {
 
 /** node is a core functions set, which can build basic ui */
 export const node = {
+    /** 取得資源位址 */
     getAssetsPath,
     /** 取得目前頁面所有有 tid 的物件，適用於跨不同層級元件呼叫使用 */
     getPageNodes: () => nodes,
@@ -1667,6 +1735,8 @@ export const node = {
     alert,
     /** dialog 延伸的確認視窗 */
     confirm,
+    /** 針對 vm_list 篩選顯示資料 */
+    pageer,
     /** 將資料轉為 View Model 間溝通的橋樑，使用方法如 node.proxy(store.data.xxxx...) */
     proxy,
 }
