@@ -83,9 +83,10 @@ class NodeBase {
 
     /** set style */
     setStyle(styleObj) {
-        Object.keys(styleObj).forEach(k => {
-            this.__tag.style[k] = styleObj[k]
-        })
+        if (this.__tag)
+            Object.keys(styleObj).forEach(k => {
+                this.__tag.style[k] = styleObj[k]
+            })
         return this
     }
 
@@ -102,6 +103,7 @@ class NodeBase {
 
     /** event - auto remove event by calling remove function */
     on(eventName, execFun) {
+        if (!this.__tag) return this
         const event = e => { execFun(e, this) }
         event.exe = execFun
         this.__tag.addEventListener(eventName, event)
@@ -114,10 +116,13 @@ class NodeBase {
         let e = this.__eventList.filter(e => e.eventName == eventName && e.event.exe == execFun)[0]
         if (!e) return this
         let index = this.__eventList.findIndex(ev => ev == e)
-        console.log(index)
         this.__tag.removeEventListener(e.eventName, e.event)
         this.__eventList.splice(index, 1)
         return this
+    }
+
+    has(eventName, execFun) {
+        return !!this.__eventList?.filter(e => e.eventName == eventName && e.event.exe == execFun)[0]
     }
 }
 
@@ -1236,7 +1241,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffs
         node.div(id + '__contentWrapper').setStyle({ position: 'relative', width: cssWidth, height: cssHeight, overflow: 'auto' }).setChildren([
             node.div(id + '__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' }).setChildren([contentNode]),
         ]),
-        node.div(id + '__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `${cssOffsetTrackX}`, transition: 'opacity .2s', overflow: 'hidden' }).setChildren([
+        node.div(id + '__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `${cssOffsetTrackX}`, transition: 'opacity .2s', opacity: '0', overflow: 'hidden' }).setChildren([
             node.div(id + '__thumb').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
         ])
     ])
@@ -1264,7 +1269,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffs
         // hide the scrollbar, when the mouse stop moving for 2 seconds
         if (timeId == null && top == preTop && bar.getH5Tag().style.opacity == '1') {
             timeId = setTimeout(() => {
-                bar.setStyle({ opacity: '0' })
+                bar?.setStyle({ opacity: '0' })
                 timeId = null
                 let mm = () => {
                     scro.off('mousemove', mm)
@@ -1274,8 +1279,10 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffs
                 let mm2 = () => {
                     clearTimeout(timeId)
                     timeId = setTimeout(() => {
-                        scro.off('mousemove', mm2)
-                        bar.setStyle({ opacity: '0' })
+                        if (scro.has('mousemove', mm2)) {
+                            scro.off('mousemove', mm2)
+                            bar.setStyle({ opacity: '0' })
+                        }
                         timeId = null
                     }, 2000)
                 }
@@ -1283,7 +1290,6 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffs
             }, 2000)
         }
         bar.setStyle({ opacity: '1' })
-        console.log(top, preTop)
         preTop = top
     }
 
