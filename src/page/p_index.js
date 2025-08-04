@@ -33,5 +33,6 @@ export const p_index = () => {
     // UI Interaction
     jsdom.getChildById('title').on('click', _ => router.go('index/home'))
 
-    return jsdom
+    // full page custom scroll bar
+    return node.scroller('', '100vw', '100vh', 'springgreen', '#333', '0px', jsdom)
 }

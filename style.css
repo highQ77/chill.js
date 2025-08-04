@@ -5,6 +5,12 @@ body {
     background: #222;
 }
 
+/* hide original scrollbar */
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+}
+
 /* --------- router buttons active state */
 .active {
     border-bottom: 1px springgreen solid;

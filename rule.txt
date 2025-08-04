@@ -5,6 +5,7 @@
 // 🟣 store fetch data 功能開發 (目前是假資料)
 // 🟣 essential ui component: date? / time? / date time? / color? / checkbox? / radio button? / select? / pager?
 // 🟣 .isFormItem(itemKey) // NodeBase
+// 🟣  scroller 垂直開發完, 還有水平 scroller
 
 // [intro]
 // ✅ 有鑒於現代前端框架複雜度劇增，個人希望能開發出簡單易學且能快速開發的框架
