@@ -10,6 +10,7 @@ export const p_introB = () => {
     // ViewModel datas
     const oneItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')
     const oneItemData = node.proxy(store.data.p_introB.textAreaTest)
+    const topBarColor = node.proxy(store.data.p_introB.uiColor)
 
     // UI DOM Build
     let jsdom = node.div().setStyle(style_hi).setChildren([
@@ -56,15 +57,19 @@ export const p_introB = () => {
         ui.date(result => result && t.setText(result))
     })
     jsdom.getChildById('color').on('click', (e, t) => {
-        ui.color(color => t.setStyle({ background: `rgb(${color.r}, ${color.g},${color.b}` }))
+        ui.color(color => {
+            topBarColor[0] = `rgb(${color.r}, ${color.g},${color.b}`
+            t.setStyle({ background: topBarColor[0] })
+            // ❤️ node.getPageNodeById 只能在 jsdom 建立完成才會生效。node.getPageNodeById 會比 node.app().getChildById 來得高效
+            node.getPageNodeById('navBar').setStyle({ background: topBarColor[0] })
+        })
     })
 
     // 不同層級元件溝通
     jsdom.getChildById('all').on('click', () => {
         // 用以觀察目前頁面的所有有設定 tag id 的物件
         console.log(node.getPageNodes())
-        // ❤️ node.getPageNodeById 只能在 jsdom 建立完成才會生效。node.getPageNodeById 會比 node.app().getChildById 來得高效
-        node.getPageNodeById('navBar').setStyle({ background: '#353552ff' })
+        ui.alert('please check developer console', '350px', '150px', result => console.log(result))
     })
 
     // ❤️ node.getPageNodeById 會執行失敗 ❌，因為 jsdom 正建立中，尚未加到 dom 裡

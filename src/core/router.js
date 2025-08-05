@@ -50,7 +50,8 @@ function changeContent(pageId) {
         pageId = pageIds[i]
         let t = setting[pageId].dom_tpl()
         if (i == 0) {
-            node.app().setChildren([t])
+            if (!node.app().getChildren()[0])
+                node.app().setChildren([t])
             let defId = setting[pageId].default
             if (defId) {
                 let t2 = setting[defId].dom_tpl()

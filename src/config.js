@@ -35,7 +35,7 @@ export const config = {
                 '強大的可覆用模組通用設計方式',
                 '程式碼不用編譯即可直接預覽',
                 '依需要可使用 webpack 壓縮與混淆程式碼',
-                'node.xxx().on 註冊的方法會在切換頁面會貼心自動釋放',
+                'node.xxx().on 註冊的方法會在切換頁面時貼心自動釋放',
                 'node.xxx API 提供基礎 ui 與常用函式',
                 'ui.xxx API 提供高級 ui 且可輕鬆自定義樣式',
                 'router 設計簡單直覺，src/config.js 進行設定',
@@ -51,6 +51,7 @@ export const config = {
 
         },
         p_introB: {
+            uiColor: 'black',
             textAreaTest: 'enter somethings here'
         }
     }
