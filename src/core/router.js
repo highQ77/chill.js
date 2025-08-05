@@ -2,6 +2,7 @@ import { config } from "../config.js"
 import { node } from "./node.js"
 
 let setting
+let currentPageId
 window.addEventListener('popstate', popstate)
 
 export let router = {
@@ -11,6 +12,7 @@ export let router = {
     // go to new page
     go(pageId) {
         if (!pageId) return
+        currentPageId = pageId
         if (location.href.split('/#/')[1] == pageId) return // check repeat mouse click
         pageId = setting[pageId].default || pageId // if u have default page
         let url = location.protocol + '//' + location.host + '/#/' + pageId
@@ -46,7 +48,9 @@ function changeContent(pageId) {
         pageIds.push(segResult)
     }
     pageIds = pageIds.map(pid => pid.slice(1))
-    for (let i = 0; i < pageIds.length; i++) {
+    let searchIndex = pageIds.indexOf(currentPageId)
+    if (searchIndex == -1) searchIndex = 0
+    for (let i = searchIndex; i < pageIds.length; i++) {
         pageId = pageIds[i]
         let t = setting[pageId].dom_tpl()
         if (i == 0) {

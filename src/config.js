@@ -51,7 +51,6 @@ export const config = {
 
         },
         p_introB: {
-            uiColor: 'black',
             textAreaTest: 'enter somethings here'
         }
     }

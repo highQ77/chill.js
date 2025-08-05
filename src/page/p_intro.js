@@ -8,7 +8,7 @@ export const p_intro = () => {
 
     // UI DOM Build
     let jsdom = node.div('hi').setChildren([
-        node.div().setClass('p-1 bg-[#FFFFFF22] flex justify-center').setChildren(
+        node.div('subNav').setClass('p-1 bg-[#FFFFFF22] flex justify-center').setChildren(
             router.group('routerViewIntro', [
                 node.button('', 'MVVM', btnClass, 'index/intro/pageA').setStyle({ marginRight: '1px' }),
                 node.button('', 'Misc.', btnClass, 'index/intro/pageB')

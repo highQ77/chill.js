@@ -4,6 +4,7 @@
 // 🟣 store fetch data 功能開發 (目前是假資料)
 // 🟣 essential ui component: time? / date time? / checkbox? / radio button? / select? / pager? / slider
 // 🟣 .isFormItem(itemKey) // NodeBase
+// 🟣 如何存色碼
 
 // [intro]
 // ✅ 有鑒於現代前端框架複雜度劇增，個人希望能開發出簡單易學且能快速開發的框架

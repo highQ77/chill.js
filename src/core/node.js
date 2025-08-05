@@ -1635,15 +1635,16 @@ const button = (id, label, className, pageId, activeClassName = 'active') => {
     const btn = node.div(id).setClass(className).setText(label)
     btn.routerPageId = pageId
     if (pageId) {
-        btn.on('click', () => router.go(pageId))
-        requestAnimationFrame(() => {
+        const update = () => {
             if (location.href.split('/#/')[1]?.indexOf(pageId) > -1) {
                 btn.getParent().getChildren().forEach(e => {
                     e.setClass(className)
                 })
                 btn.setClass(className + ' ' + activeClassName)
             }
-        })
+        }
+        btn.on('click', () => { router.go(pageId); update() })
+        requestAnimationFrame(update)
     }
     return btn
 }

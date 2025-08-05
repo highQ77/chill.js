@@ -10,7 +10,6 @@ export const p_introB = () => {
     // ViewModel datas
     const oneItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')
     const oneItemData = node.proxy(store.data.p_introB.textAreaTest)
-    const topBarColor = node.proxy(store.data.p_introB.uiColor)
 
     // UI DOM Build
     let jsdom = node.div().setStyle(style_hi).setChildren([
@@ -58,10 +57,8 @@ export const p_introB = () => {
     })
     jsdom.getChildById('color').on('click', (e, t) => {
         ui.color(color => {
-            topBarColor[0] = `rgb(${color.r}, ${color.g},${color.b}`
-            t.setStyle({ background: topBarColor[0] })
+            t.setStyle({ background: `rgb(${color.r}, ${color.g},${color.b})` })
             // ❤️ node.getPageNodeById 只能在 jsdom 建立完成才會生效。node.getPageNodeById 會比 node.app().getChildById 來得高效
-            node.getPageNodeById('navBar').setStyle({ background: topBarColor[0] })
         })
     })
 
@@ -72,12 +69,12 @@ export const p_introB = () => {
         ui.alert('please check developer console', '350px', '150px', result => console.log(result))
     })
 
-    // ❤️ node.getPageNodeById 會執行失敗 ❌，因為 jsdom 正建立中，尚未加到 dom 裡
-    // node.getPageNodeById('navBar').setStyle({ background: 'deeppink' }) 
+    // ❤️ node.getPageNodeById 會執行失敗，因為 jsdom 正建立中，尚未加到 dom 裡
+    // node.getPageNodeById('navBar').setStyle({ background: 'deeppink' }) // ❌
 
     // ❤️ 下面會成功，因為是下一次觸發渲染才會跑，而在渲染前 jsdom 已經建立完畢
     // requestAnimationFrame(() => {
-    //     node.getPageNodeById('navBar').setStyle({ background: 'green' })
+    //     node.getPageNodeById('navBar').setStyle({ background: 'orange' })
     // })
 
     return jsdom
