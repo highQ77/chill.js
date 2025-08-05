@@ -34,5 +34,5 @@ export const p_index = () => {
     jsdom.getChildById('title').on('click', _ => router.go('index/home'))
 
     // full page custom scroll bar
-    return node.scroller('', '100vw', '100dvh', 'springgreen', '#333', '0px', jsdom)
+    return node.scroller('', '100vw', '100dvh', 'springgreen', '#333', '0px', '0px', jsdom)
 }

@@ -34,7 +34,7 @@ export const p_introB = () => {
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
             node.hr(),
             node.div().setText('image'),
-            node.img('testimg').setSrc('sample.png').setClass('rounded-sm'),
+            node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2)
         ])
     ])
 

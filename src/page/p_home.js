@@ -22,7 +22,7 @@ export const p_home = () => {
             node.div().setClass('text-[springgreen]').setText(' easy all-in-one ( jsdom / mvvm / store / router ) javascript framework'),
             node.div().setText('適用於 web 單頁應用程式開發'),
             node.div().setText('features').setClass('text-2xl').setStyle({ marginTop: '30px' }),
-            node.scroller('featuresScroller', 'calc(100vw - 30px)', '250px', 'springgreen', '#333', '-15px', ui.layoutH(node.vm_list('features', itemsTemplate, itemsData), 3))
+            node.scroller('featuresScroller', 'calc(100vw - 30px)', '250px', 'springgreen', '#333', '-5px', '0px', ui.layoutH(node.vm_list('features', itemsTemplate, itemsData), 3))
         ]),
     ])
 

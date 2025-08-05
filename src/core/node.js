@@ -90,6 +90,11 @@ class NodeBase {
         return this
     }
 
+    /** get style */
+    getStyle() {
+        return this.__tag?.style
+    }
+
     /** set class */
     setClass(classStr) {
         this.__tag.className = classStr
@@ -102,11 +107,11 @@ class NodeBase {
     }
 
     /** event - auto remove event by calling remove function */
-    on(eventName, execFun) {
+    on(eventName, execFun, bubble) {
         if (!this.__tag) return this
         const event = e => { execFun(e, this) }
         event.exe = execFun
-        this.__tag.addEventListener(eventName, event)
+        this.__tag.addEventListener(eventName, event, bubble)
         this.__eventList.push({ eventName, event })
         return this
     }
@@ -357,6 +362,11 @@ class Img extends NodeBase {
     }
 
     setSrc(src) {
+        this.__tag.onload = () => {
+            this.__tag.onload = null
+            this.__tag.width = this.__tag.naturalWidth
+            this.__tag.height = this.__tag.naturalHeight
+        }
         this.__tag.src = node.getAssetsPath(src)
         return this
     }
@@ -1235,100 +1245,223 @@ class VMSingle extends Div {
 const getUniqueId = () => (Date.now() + '').slice(7) + (Math.random().toFixed(3) + '').split('.')[1] // 防止 id 衝突
 
 // scroller 
-const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssOffsetTrackX, contentNode) => {
+const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrackVOffsetX, cssTrackHOffsetY, contentNode, policy = 0) => {
     if (!id) id = getUniqueId()
-    const scro = node.div(id).setStyle({ position: 'relative' }).setChildren([
-        node.div(id + '__contentWrapper').setStyle({ position: 'relative', width: cssWidth, height: cssHeight, overflow: 'auto' }).setChildren([
-            node.div(id + '__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' }).setChildren([contentNode]),
+
+    // fit scroll content
+    let contentW = 0
+    let contentNodeStyle = contentNode.getStyle()
+    let w = parseInt(contentNodeStyle.width)
+    if (!(!w || isNaN(w))) {
+        if (contentNodeStyle.width.slice((w + '').length) == 'px') {
+            contentW = contentNodeStyle.width
+        }
+    }
+
+    // scroller jsdom
+    const scro = node.div(id).setStyle({ position: 'relative', display: 'inline-flex', cssWidth, cssHeight }).setChildren([
+        node.div(id + '__contentWrapper').setStyle({ position: 'relative', overflow: 'auto', width: cssWidth, height: cssHeight }).setChildren([
+            node.div(id + '__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: contentW || cssWidth, height: cssHeight }).setChildren([contentNode]),
         ]),
-        node.div(id + '__bar').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '3px', right: `${cssOffsetTrackX}`, transition: 'opacity .2s', opacity: '0', overflow: 'hidden' }).setChildren([
-            node.div(id + '__thumb').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
+        node.div(id + '__barV').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '7px', height: '100%', top: '0px', right: cssTrackVOffsetX, transition: 'opacity .2s', opacity: '0', overflow: 'hidden' }).setChildren([
+            node.div(id + '__thumbV').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '5px', height: '100%', top: '0px', right: '1px' })
+        ]),
+        node.div(id + '__barH').setStyle({ position: 'absolute', background: cssTrackColor, borderRadius: '10px', width: '100%', height: '7px', top: `calc(${cssHeight} + ${cssTrackHOffsetY})`, transition: 'opacity .2s', opacity: '0', overflow: 'hidden' }).setChildren([
+            node.div(id + '__thumbH').setStyle({ position: 'absolute', background: cssThumbColor, borderRadius: '10px', width: '100%', height: '5px', bottom: '0px', top: '1px' })
         ])
     ])
-    const bar = scro.getChildById(id + '__bar')
-    const thumb = scro.getChildById(id + '__thumb')
+    const barV = scro.getChildById(id + '__barV')
+    const thumbV = scro.getChildById(id + '__thumbV')
+    const barH = scro.getChildById(id + '__barH')
+    const thumbH = scro.getChildById(id + '__thumbH')
     const content = scro.getChildById(id + '__content')
     const wrapper = scro.getChildById(id + '__contentWrapper')
 
-    let timeId
-    let preTop
+    // scroll vertical
+    if (policy == 0 || policy == 2) {
+        let timeId
+        let timeId2
+        let timeId3
+        let preTop
 
-    const scrollfunc = e => {
-        let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
-        let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+        const scrollfunc = e => {
+            let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
+            let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
 
-        if (Math.abs(contentHeight - contentNodeHeight) < 2) return
+            if (Math.abs(contentHeight - contentNodeHeight) < 2) return
 
-        let ratio = contentHeight / contentNodeHeight
-        let top = wrapper.getH5Tag().scrollTop * ratio
-        let emptyspace = contentHeight * (1 - ratio) - 1.5
-        if (top < 1.5) top = 1.5
-        else if (top > emptyspace) top = emptyspace
-        thumb.setStyle({ height: contentHeight * ratio + 'px', top: top + 'px' })
+            let ratio = contentHeight / contentNodeHeight
+            let top = wrapper.getH5Tag().scrollTop * ratio
+            let emptyspace = contentHeight * (1 - ratio) - 1.5
+            if (top < 1.5) top = 1.5
+            else if (top > emptyspace) top = emptyspace
+            thumbV.setStyle({ height: contentHeight * ratio + 'px', top: top + 'px' })
 
-        // hide the scrollbar, when the mouse stop moving for 2 seconds
-        if (timeId == null && top == preTop && bar.getH5Tag().style.opacity == '1') {
-            timeId = setTimeout(() => {
-                bar?.setStyle({ opacity: '0' })
-                timeId = null
-                let mm = () => {
-                    scro.off('mousemove', mm)
-                    bar.setStyle({ opacity: '1' })
-                }
-                scro.on('mousemove', mm)
-                let mm2 = () => {
-                    clearTimeout(timeId)
-                    timeId = setTimeout(() => {
-                        if (scro.has('mousemove', mm2)) {
-                            scro.off('mousemove', mm2)
-                            bar.setStyle({ opacity: '0' })
-                        }
-                        timeId = null
-                    }, 2000)
-                }
-                scro.on('mousemove', mm2)
-            }, 2000)
+            // hide the scrollbar, when the mouse stop moving for 2 seconds
+            if (timeId == null && top == preTop && barV.getH5Tag().style.opacity == '1') {
+                timeId = setTimeout(() => {
+                    barV.setStyle({ opacity: '0' })
+                    timeId = null
+                    let mm = () => {
+                        scro.off('mousemove', mm)
+                        barV.setStyle({ opacity: '1' })
+                    }
+                    scro.on('mousemove', mm, true)
+                    let mm2 = () => {
+                        clearTimeout(timeId2)
+                        timeId2 = setTimeout(() => {
+                            if (scro.has('mousemove', mm2)) {
+                                scro.off('mousemove', mm2)
+                                barV.setStyle({ opacity: '0' })
+                            }
+                            timeId2 = null
+                        }, 1000)
+                    }
+                    scro.on('mousemove', mm2, true)
+                }, 1500)
+            }
+            barV.setStyle({ opacity: '1' })
+            preTop = top
+
+            // console.log('v', e?.currentTarget, e?.target)
         }
-        bar.setStyle({ opacity: '1' })
-        preTop = top
-    }
 
-    // scroll events
-    wrapper.on('scroll', scrollfunc)
-    wrapper.on('mousemove', scrollfunc)
-    scro.on('mouseenter', () => {
-        let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
-        let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
-        if (Math.abs(contentHeight - contentNodeHeight) >= 2) {
-            bar.setStyle({ opacity: '1' })
+        // scroll events
+        wrapper.on('scroll', scrollfunc)
+        wrapper.on('mousemove', scrollfunc)
+        scro.on('mouseenter', () => {
+            let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
+            let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+            if (Math.abs(contentHeight - contentNodeHeight) >= 2) {
+                barV.setStyle({ opacity: '1' })
+                scrollfunc()
+            }
+        })
+        scro.on('mouseleave', () => { barV.setStyle({ opacity: '0' }); })
+
+        // observer content height
+        let firstTime = true
+        const observer = new ResizeObserver(() => {
+            if (!content.getH5Tag()) return
+            if (firstTime) { firstTime = false; return }
+            let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
+            let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
+            if (Math.abs(contentHeight - contentNodeHeight) > 2) {
+                barV.setStyle({ opacity: '1' })
+                clearTimeout(timeId3)
+                timeId3 = setTimeout(() => {
+                    barV.setStyle({ opacity: '0' })
+                    timeId3 = null
+                }, 1000)
+            } else {
+                barV.setStyle({ opacity: '0' })
+            }
             scrollfunc()
-        }
-    })
-    scro.on('mouseleave', () => { bar.setStyle({ opacity: '0' }); })
+        })
+        observer.observe(contentNode.getH5Tag())
 
-    // observer content height
-    const observer = new ResizeObserver(() => {
-        if (!content.getH5Tag()) return
-        let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
-        let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
-        if (Math.abs(contentHeight - contentNodeHeight) > 2) {
-            bar.setStyle({ opacity: '1' })
-        } else {
-            bar.setStyle({ opacity: '0' })
+        // page leave watcher, and observer disconnect
+        let storeHref = location.href
+        let pageObserver = () => {
+            if (location.href != storeHref) {
+                observer.disconnect()
+                window.removeEventListener('popstate', pageObserver)
+            }
         }
-        scrollfunc()
-    })
-    observer.observe(contentNode.getH5Tag())
-
-    // page leave watcher
-    let storeHref = location.href
-    let pageObserver = () => {
-        if (location.href != storeHref) {
-            observer.disconnect()
-            window.removeEventListener('popstate', pageObserver)
-        }
+        window.addEventListener('popstate', pageObserver)
     }
-    window.addEventListener('popstate', pageObserver)
+
+    // scroll horizontal
+    if (policy == 1 || policy == 2) {
+
+        let timeId
+        let timeId2
+        let timeId3
+        let preLeft
+
+        const scrollfunc = e => {
+            let contentWidth = parseInt(cssWidth) || content.getH5Tag().getBoundingClientRect().width // visible width
+            let contentNodeWidth = contentNode.getH5Tag().getBoundingClientRect().width // real width
+            if (Math.abs(contentWidth - contentNodeWidth) < 2) return
+
+            let ratio = contentWidth / contentNodeWidth
+            let left = wrapper.getH5Tag().scrollLeft * ratio
+            let emptyspace = contentWidth * (1 - ratio) - 1.5
+            if (left < 1.5) left = 1.5
+            else if (left > emptyspace) left = emptyspace
+            thumbH.setStyle({ width: contentWidth * ratio + 'px', left: left + 'px' })
+
+            // hide the scrollbar, when the mouse stop moving for 2 seconds
+            if (timeId == null && left == preLeft && barH.getH5Tag().style.opacity == '1') {
+                timeId = setTimeout(() => {
+                    barH.setStyle({ opacity: '0' })
+                    timeId = null
+                    let mm = () => {
+                        scro.off('mousemove', mm)
+                        barH.setStyle({ opacity: '1' })
+                    }
+                    scro.on('mousemove', mm, true)
+                    let mm2 = () => {
+                        clearTimeout(timeId2)
+                        timeId2 = setTimeout(() => {
+                            if (scro.has('mousemove', mm2)) {
+                                scro.off('mousemove', mm2)
+                                barH.setStyle({ opacity: '0' })
+                            }
+                            timeId2 = null
+                        }, 1000)
+                    }
+                    scro.on('mousemove', mm2, true)
+                }, 1500)
+            }
+            barH.setStyle({ opacity: '1' })
+            preLeft = left
+        }
+
+        // scroll events
+        wrapper.on('scroll', scrollfunc)
+        wrapper.on('mousemove', scrollfunc)
+        scro.on('mouseenter', () => {
+            let contentWidth = parseInt(cssWidth) || content.getH5Tag().getBoundingClientRect().width // visible width
+            let contentNodeWidth = contentNode.getH5Tag().getBoundingClientRect().width // real width
+            if (Math.abs(contentWidth - contentNodeWidth) >= 2) {
+                barH.setStyle({ opacity: '1' })
+                scrollfunc()
+            }
+        })
+        scro.on('mouseleave', () => { barH.setStyle({ opacity: '0' }); })
+
+        // observer content width
+        let firstTime = true
+        const observer = new ResizeObserver(() => {
+            if (!content.getH5Tag()) return
+            if (firstTime) { firstTime = false; return }
+            let contentWidth = parseInt(cssWidth) || content.getH5Tag().getBoundingClientRect().width // visible width
+            let contentNodeWidth = contentNode.getH5Tag().getBoundingClientRect().width // real width
+            if (Math.abs(contentWidth - contentNodeWidth) > 2) {
+                barH.setStyle({ opacity: '1' })
+                clearTimeout(timeId3)
+                timeId3 = setTimeout(() => {
+                    barH.setStyle({ opacity: '0' })
+                    timeId3 = null
+                }, 1000)
+            } else {
+                barH.setStyle({ opacity: '0' })
+            }
+            scrollfunc()
+        })
+        observer.observe(contentNode.getH5Tag())
+
+        // page leave watcher, and observer disconnect
+        let storeHref = location.href
+        let pageObserver = () => {
+            if (location.href != storeHref) {
+                observer.disconnect()
+                window.removeEventListener('popstate', pageObserver)
+            }
+        }
+        window.addEventListener('popstate', pageObserver)
+    }
 
     return scro
 }
@@ -1727,7 +1860,7 @@ export const node = {
     vm_single: (id, item_tpl, datas) => new VMSingle(id, item_tpl, datas), // model view
     /** 生成檔案選取按鈕 */
     file: (id, label, className, readerMode, callback) => new FilePicker(id, label, className, readerMode, callback),
-    /** 滾動條 */
+    /** 滾動條, policy (0 = vertical / 1 = horizontal / 2 = both) */
     scroller,
     /** 一般按鈕或是路由按鈕 */
     button,
