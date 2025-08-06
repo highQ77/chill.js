@@ -1649,6 +1649,11 @@ const button = (id, label, className, pageId, activeClassName = 'active') => {
     return btn
 }
 
+// divimg
+function divimg(id, src) {
+    return node.div(id).setStyle({ background: `url(${getAssetsPath(src)})` })
+}
+
 // 🟠 preparing
 const pageer = (id, proxyData) => {
     if (!id) id = getUniqueId()
@@ -1677,6 +1682,10 @@ function proxy(storeField) {
 
             if (!items.update) {
                 obj[prop] = val
+
+                // pure data without view
+                if (prop == '0')
+                    storeField[prop] = val
                 return true
             }
 
@@ -1822,9 +1831,51 @@ function getAssetsPath(assetSrc) {
     return ''
 }
 
-// divimg
-function divimg(id, src) {
-    return node.div(id).setStyle({ background: `url(${getAssetsPath(src)})` })
+/** 可使用在不同層級資料溝通, different component level communication */
+class PubSub {
+
+    static __allsub = {}
+
+    static subscribe(msgTitle, subscriber) {
+        if (!PubSub.__allsub[msgTitle]) {
+            PubSub.__allsub[msgTitle] = [subscriber]
+        } else {
+            PubSub.__allsub[msgTitle].push(subscriber)
+        }
+        subscriber.token = getUniqueId()
+        return subscriber.token
+    }
+
+    static publish(msgTitle, data) {
+        PubSub.__allsub[msgTitle].forEach(subscriber => {
+            subscriber(/*msgTitle,*/ data)
+        });
+    }
+
+    // PubSub.unsubscribe(token); // delete 1
+    // PubSub.unsubscribe(mySubscriber); // delete all
+    static unsubscribe(tokenOrSubscriber) {
+        if (typeof tokenOrSubscriber == 'function') {
+            // delete subscriber
+            Object.keys(PubSub.__allsub).forEach(msgTitle => {
+                PubSub.__allsub[msgTitle] = PubSub.__allsub[msgTitle].filter(subscriber => subscriber != tokenOrSubscriber)
+            })
+        } else {
+            // delete token
+            Object.keys(PubSub.__allsub).forEach(msgTitle => {
+                PubSub.__allsub[msgTitle] = PubSub.__allsub[msgTitle].filter(subscriber => subscriber.token != tokenOrSubscriber)
+            })
+        }
+    }
+
+    // clearAll - call this function when change page, and then subscribe again in new page 
+    static clearAllSubscriptions() {
+        Object.keys(PubSub.__allsub).forEach(msgTitle => {
+            PubSub.__allsub[msgTitle].length = 0
+            delete PubSub.__allsub[msgTitle]
+        })
+    }
+
 }
 
 /** node is a core functions set, which can build basic ui */
@@ -1875,8 +1926,10 @@ export const node = {
     alert,
     /** dialog 延伸的確認視窗 */
     confirm,
-    /** 針對 vm_list 篩選顯示資料 */
+    /** 針對 vm_list 篩選顯示資料 */ // 🟠 尚未開發
     pageer,
     /** 將資料轉為 View Model 間溝通的橋樑，使用方法如 node.proxy(store.data.xxxx...) */
     proxy,
+    /** 跨元件溝通 */
+    pubsub: PubSub,
 }

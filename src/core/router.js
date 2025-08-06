@@ -27,6 +27,10 @@ export let router = {
         })
         return btns
     },
+    /** on leave page observer */
+    onSwitchRouterView(jsdom, listener) {
+        jsdom.listener = listener
+    }
 }
 
 function popstate() {
@@ -53,12 +57,15 @@ function changeContent(pageId) {
     for (let i = searchIndex; i < pageIds.length; i++) {
         pageId = pageIds[i]
         let t = setting[pageId].dom_tpl()
+        pageLeaveListener(t)
         if (i == 0) {
-            if (!node.app().getChildren()[0])
+            if (!node.app().getChildren()[0]) {
                 node.app().setChildren([t])
+            }
             let defId = setting[pageId].default
             if (defId) {
                 let t2 = setting[defId].dom_tpl()
+                pageLeaveListener(t2)
                 let vid2 = setting[defId].viewId
                 node.app().getChildById(vid2).setChildren([t2])
             }
@@ -66,6 +73,18 @@ function changeContent(pageId) {
             let vid = setting[pageId].viewId
             node.app().getChildById(vid).setChildren([t])
         }
-
     }
+}
+
+/** observe router when leave page (router view switch) */
+function pageLeaveListener(jsdom) {
+    if (!jsdom.listener) return
+    const observer = new MutationObserver((mutation) => {
+        if (!document.body.contains(jsdom.getH5Tag())) {
+            observer.disconnect()
+            jsdom.listener()
+            jsdom.listener = null
+        }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
 }

@@ -31,7 +31,6 @@ export const config = {
                 '透過 MVVM 設計，簡化開發困難度',
                 '可以整合 tailwind 與其他 css 框架',
                 '與傳統 html 差別在標籤生成全在 js 裡完成',
-                '不需要管生命週期',
                 '強大的可覆用模組通用設計方式',
                 '程式碼不用編譯即可直接預覽',
                 '依需要可使用 webpack 壓縮與混淆程式碼',
@@ -40,7 +39,8 @@ export const config = {
                 'ui.xxx API 提供高級 ui 且可輕鬆自定義樣式',
                 'router 設計簡單直覺，src/config.js 進行設定',
                 'store 用於管理全域資料，且畫面切換資料不會消失，通常會配合 node.proxy 使用，src/config.js 進行設定',
-                '不同層級的元件溝通簡單，僅需 getPageNodes 物件全取 or getPageNodeById 取單一物件',
+                '不需要管生命週期，除了切換 router view 觸發事件用 router.onSwitchRouterView',
+                '不同層級的元件溝通簡單，透過 pub / sub 機制處理',
             ]
         },
         p_introA: {
@@ -51,7 +51,8 @@ export const config = {
 
         },
         p_introB: {
-            textAreaTest: 'enter somethings here'
+            textAreaTest: 'enter somethings here',
+            navSubBGColor: '#FFFFFF22',
         }
     }
 }

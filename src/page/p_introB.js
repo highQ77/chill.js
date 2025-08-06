@@ -57,8 +57,7 @@ export const p_introB = () => {
     })
     jsdom.getChildById('color').on('click', (e, t) => {
         ui.color(color => {
-            t.setStyle({ background: `rgb(${color.r}, ${color.g},${color.b})` })
-            // ❤️ node.getPageNodeById 只能在 jsdom 建立完成才會生效。node.getPageNodeById 會比 node.app().getChildById 來得高效
+            node.pubsub.publish('changeSubNavBG', `rgb(${color.r}, ${color.g},${color.b})`)
         })
     })
 
@@ -68,6 +67,8 @@ export const p_introB = () => {
         console.log(node.getPageNodes())
         ui.alert('please check developer console', '350px', '150px', result => console.log(result))
     })
+
+    // ❤️ node.getPageNodeById or getPageNodes 只能在 jsdom 建立完成才會生效。node.getPageNodeById 會比 node.app().getChildById 來得高效
 
     // ❤️ node.getPageNodeById 會執行失敗，因為 jsdom 正建立中，尚未加到 dom 裡
     // node.getPageNodeById('navBar').setStyle({ background: 'deeppink' }) // ❌
