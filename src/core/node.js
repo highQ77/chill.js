@@ -1288,7 +1288,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
             let contentHeight = content.getH5Tag().getBoundingClientRect().height // visible height
             let contentNodeHeight = contentNode.getH5Tag().getBoundingClientRect().height // real height
 
-            if (Math.abs(contentHeight - contentNodeHeight) < 2) return
+            if (Math.abs(contentHeight - contentNodeHeight) < 2) { barV.setStyle({ transition: 'none', opacity: '0' }); return }
 
             let ratio = contentHeight / contentNodeHeight
             let top = wrapper.getH5Tag().scrollTop * ratio
@@ -1320,7 +1320,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
                     scro.on('mousemove', mm2, true)
                 }, 1500)
             }
-            barV.setStyle({ opacity: '1' })
+            barV.setStyle({ transition: 'opacity .2s', opacity: '1' })
             preTop = top
 
             // console.log('v', e?.currentTarget, e?.target)
@@ -1358,7 +1358,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
             }
             scrollfunc()
         })
-        observer.observe(contentNode.getH5Tag())
+        observer.observe(scro.getH5Tag())
 
         // page leave watcher, and observer disconnect
         let storeHref = location.href
@@ -1382,7 +1382,8 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
         const scrollfunc = e => {
             let contentWidth = parseInt(cssWidth) || content.getH5Tag().getBoundingClientRect().width // visible width
             let contentNodeWidth = contentNode.getH5Tag().getBoundingClientRect().width // real width
-            if (Math.abs(contentWidth - contentNodeWidth) < 2) return
+
+            if (Math.abs(contentWidth - contentNodeWidth) < 2) { barH.setStyle({ transition: 'none', opacity: '0' }); return }
 
             let ratio = contentWidth / contentNodeWidth
             let left = wrapper.getH5Tag().scrollLeft * ratio
@@ -1414,7 +1415,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
                     scro.on('mousemove', mm2, true)
                 }, 1500)
             }
-            barH.setStyle({ opacity: '1' })
+            barH.setStyle({ transition: 'opacity .2s', opacity: '1' })
             preLeft = left
         }
 
@@ -1450,7 +1451,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
             }
             scrollfunc()
         })
-        observer.observe(contentNode.getH5Tag())
+        observer.observe(scro.getH5Tag())
 
         // page leave watcher, and observer disconnect
         let storeHref = location.href
