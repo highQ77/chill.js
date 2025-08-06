@@ -1322,8 +1322,6 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
             }
             barV.setStyle({ transition: 'opacity .2s', opacity: '1' })
             preTop = top
-
-            // console.log('v', e?.currentTarget, e?.target)
         }
 
         // scroll events
