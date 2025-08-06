@@ -18,6 +18,7 @@
 // 🟠 tid 設計上應單獨唯一的存在, 使用方式 node.div('app')，'app' 就是 tid
 // 🟠 xx.getChildById('app') 就是抓取物件樹中有 tid 為 app 的物件
 // 🟠 style.css 內 .active - 可設置 router button 的選中中的狀態樣式
+// 🟠 本機存檔功能實作完成
 
 [js 類別權限設計部分]
 

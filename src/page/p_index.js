@@ -1,5 +1,6 @@
 import { node } from "../core/node.js"
 import { router } from "../core/router.js"
+import { store } from "../core/store.js"
 
 export const p_index = () => {
 

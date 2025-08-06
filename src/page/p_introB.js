@@ -22,6 +22,10 @@ export const p_introB = () => {
             ui.button('date', 'datePicker'),
             ui.button('color', 'colorPicker'),
             node.hr(),
+            node.div().setText('store data - you can save MVVM & colorPicker state'),
+            ui.button('save', 'save store'),
+            ui.button('clear', 'clear store'),
+            node.hr(),
             node.div().setText('node'),
             ui.button('all', 'all nodes log in console panel'),
             node.hr(),
@@ -59,6 +63,14 @@ export const p_introB = () => {
         ui.color(color => {
             node.pubsub.publish('changeSubNavBG', `rgb(${color.r}, ${color.g},${color.b})`)
         })
+    })
+
+    jsdom.getChildById('save').on('click', () => {
+        ui.alert('Store Data Saved', '350px', '150px', result => store.saveStore())
+    })
+
+    jsdom.getChildById('clear').on('click', () => {
+        ui.alert('Store Data Cleared', '350px', '150px', result => store.clearStore())
     })
 
     // 不同層級元件溝通
