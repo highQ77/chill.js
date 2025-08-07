@@ -1247,7 +1247,7 @@ class VMSingle extends Div {
 const getUniqueId = () => (Date.now() + '').slice(7) + (Math.random().toFixed(3) + '').split('.')[1] // 防止 id 衝突
 
 // selection - dropdown menu
-const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssThemeColor, cssThumbColor, cssTrackColor, clickCallback) => {
+const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssThemeColor, cssThumbColor, cssTrackColor, cssSelecedColor, clickCallback) => {
     if (!id) id = getUniqueId()
 
     // calculate item height
@@ -1301,8 +1301,14 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
     vmDatas.push = function (item) {
         let index = push(item)
         requestAnimationFrame(() => {
-            let clickElement = selectMenu.getChildren()[index - 1]
+            let allNode = selectMenu.getChildren()
+            let clickElement = allNode[index - 1]
+            clickElement.setStyle({ borderLeft: '1px solid transparent' })
             clickElement.on('click', (e, t) => {
+                allNode.forEach(node => {
+                    node.setStyle({ borderLeft: '1px solid transparent' })
+                })
+                t.setStyle({ borderLeft: '1px solid ' + cssSelecedColor })
                 clickCallback && clickCallback(t.getText())
                 selectTitle.setText(title + ' - ' + t.getText())
             })

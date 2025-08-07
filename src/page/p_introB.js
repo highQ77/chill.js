@@ -10,12 +10,16 @@ export const p_introB = () => {
     // ViewModel datas
     const oneItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')
     const oneItemData = node.proxy(store.data.p_introB.textAreaTest)
-    const vmSelectItemTemplate = item => {
+    const vmSelectItemTemplate = (item, idx) => {
+        let icon = '🐷'
+        if (idx == 0) icon = '🥇'
+        if (idx == 1) icon = '🥈'
+        if (idx == 2) icon = '🥉'
         return node.div().setClass('hover:bg-[#33333366] cursor-pointer')
             .setStyle({ borderTop: '1px solid #99999966', padding: '5px' })
-            .setText('🉑 ' + 'item ' + item)
+            .setText(icon + ' ' + item)
     }
-    const vmSelectItemDatas = node.proxy(Array(10).fill(0).map((i, idx) => idx + ''))
+    const vmSelectItemDatas = node.proxy(['好好', '好棒', '好累', '好神', '好運', '好開心', '好朋友', '好神奇', ...Array(10).fill(0).map((i, idx) => idx.toString())])
 
     // UI DOM Build
     let jsdom = node.div().setStyle(style_hi).setChildren([
@@ -42,7 +46,7 @@ export const p_introB = () => {
             ui.button('text', 'text'),
             ui.button('password', 'password'),
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
-            node.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, '300px', 250, '#333', '#555', '#333', (item) => '').setStyle({ marginTop: '3px' }),
+            node.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, '300px', 250, '#333', '#555', '#333', 'springgreen', (item) => '').setStyle({ marginTop: '3px' }),
             node.hr(),
             node.div().setText('image'),
             node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2)
