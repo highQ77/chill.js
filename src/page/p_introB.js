@@ -23,7 +23,7 @@ export const p_introB = () => {
     const vmRadioDatas = node.proxy(Array(10).fill(0).map((i, idx) => 'radio ' + idx.toString()))
     const vmCheckboxDatas = node.proxy(Array(10).fill(0).map((i, idx) => 'checkbox ' + idx.toString()))
 
-    const vmPagerDataView = (item, idx) => node.div().setText(item).setClass('p-1 m-1 bg-[#666]')
+    const vmPagerDataView = (item, idx) => node.div().setText(item).setClass('p-1 m-1 bg-[#111]')
     const vmPagerDatas = node.proxy(Array(66).fill(0).map((i, idx) => 'pager ' + idx.toString()))
 
 

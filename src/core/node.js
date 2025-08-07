@@ -1837,13 +1837,12 @@ function divimg(id, src) {
 const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
     if (!id) id = getUniqueId()
 
-    let globalColor = 'slate-800'
-    const buttonClass = `bg-${globalColor} inline-flex p-2 cursor-pointer hover:bg-[#FFFFFF22] border-1 border-[transparent] hover:border-b-[springgreen] m-1 rounded-sm select-none`
+    const buttonClass = `inline-flex p-2 cursor-pointer hover:bg-[#FFFFFF22] border-1 border-[#333] hover:border-b-[springgreen] m-1 rounded-sm select-none`
 
     let currentPage = 1
     let totalPages = Math.ceil(proxyData.length / itemCountPerPage)
 
-    let setPage = (idx) => {
+    let setPage = (idx, btn) => {
         if (idx < 1) idx = 1
         if (idx > totalPages) idx = totalPages
         currentPage = idx
@@ -1860,14 +1859,22 @@ const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
         })
         // update info
         info.setText(' ' + currentPage + ' / ' + totalPages + ' - ' + itemCountPerPage + ' rows per page')
+
+        // num buttons update
+        numButtons.forEach(b => b.setStyle({ border: '1px solid #333' }))
+        btn && btn.setStyle({ border: '1px solid springgreen' })
     }
 
+    // center num buttons
+    let numButtons = Array(totalPages).fill(0).map((i, idx) => node.button('', idx + 1 + '', buttonClass).on('click', (e, t) => setPage(idx + 1, t)))
+
+    // pager jsdom
     let jsdom = node.div(id).setChildren([
-        vmList.setStyle({ background: '#222' }),
+        vmList.setStyle({ background: '#222', padding: '2px' }),
         node.div().setStyle({ display: 'flex', alignItems: 'center' }).setChildren([
             node.button('', '<<', buttonClass).on('click', _ => setPage(1)),
             node.button('', '<', buttonClass).on('click', _ => setPage(currentPage - 1)),
-            ...Array(totalPages).fill(0).map((i, idx) => node.button('', idx + 1 + '', buttonClass).on('click', _ => setPage(idx + 1))),
+            ...numButtons,
             node.button('', '>', buttonClass).on('click', _ => setPage(currentPage + 1)),
             node.button('', '>>', buttonClass).on('click', _ => setPage(totalPages)),
             node.div(id + 'info'),
@@ -1881,7 +1888,7 @@ const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
     })
 
     // default page set
-    setPage(1)
+    setPage(1, numButtons[0])
 
     return jsdom
 }
