@@ -1895,11 +1895,69 @@ const splitterV = (id, cssWidth, topNode, bottomNode) => {
     return jsdom
 }
 
+const sliderH = (id, cssWidth, callback) => {
+    if (!id) id = getUniqueId()
+
+    let jsdom = node.div(id).setStyle({ display: 'inline-flex', alignItems: 'center', position: 'relative', width: cssWidth, height: '2px', background: 'springgreen', margin: '20px 0px' }).setChildren([
+        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'white', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer' })
+    ])
+
+    let update = e => {
+        let rect = jsdom.getH5Tag().getBoundingClientRect()
+        let x = e.pageX - rect.left
+        let percent = x / rect.width * 100
+        if (percent > 100) percent = 100
+        if (percent < 0) percent = 0
+        thumb.setStyle({ left: (rect.width * percent / 100 - 4) + 'px' })
+        callback && callback(percent / 100)
+    }
+
+    let thumb = jsdom.getChildById(id + 'thumb')
+
+    let app = node.app()
+    let isMouseDown = false
+    thumb.on('mousedown', e => { isMouseDown = true, app.setStyle({ cursor: 'pointer' }) })
+    app.on('mousemove', e => { isMouseDown && update(e) })
+    app.on('mouseup', e => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
+    app.on('mouseleave', _ => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
+
+    return jsdom
+}
+
+const sliderV = (id, cssHeight, callback) => {
+    if (!id) id = getUniqueId()
+
+    let jsdom = node.div(id).setStyle({ display: 'inline-flex', alignItems: 'center', position: 'relative', width: '2px', height: cssHeight, background: 'springgreen', margin: '0px 20px' }).setChildren([
+        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'white', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer' })
+    ])
+
+    let update = e => {
+        let rect = jsdom.getH5Tag().getBoundingClientRect()
+        let y = e.pageY - rect.top
+        let percent = y / rect.height * 100
+        if (percent > 100) percent = 100
+        if (percent < 0) percent = 0
+        thumb.setStyle({ top: (rect.height * percent / 100 - 4) + 'px' })
+        callback && callback(percent / 100)
+    }
+
+    let thumb = jsdom.getChildById(id + 'thumb')
+
+    let app = node.app()
+    let isMouseDown = false
+    thumb.on('mousedown', e => { isMouseDown = true, app.setStyle({ cursor: 'pointer' }) })
+    app.on('mousemove', e => { isMouseDown && update(e) })
+    app.on('mouseup', e => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
+    app.on('mouseleave', _ => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
+
+    return jsdom
+}
+
 // pager
 const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
     if (!id) id = getUniqueId()
 
-    const buttonClass = `inline-flex p-2 cursor-pointer hover:bg-[#FFFFFF22] border-1 border-[#333] hover:border-b-[springgreen] m-1 rounded-sm select-none`
+    const buttonClass = `inline-flex p-2 cursor-pointer hover:bg-[#FFFFFF22] border-1 border-[#333] hover:border-b-[springgreen] m-1 rounded-sm`
 
     let currentPage = 1
     let totalPages = Math.ceil(proxyData.length / itemCountPerPage)
@@ -2218,6 +2276,9 @@ export const node = {
     scroller,
     /** 一般按鈕或是路由按鈕 */
     button,
+    /** 滑桿 */
+    sliderH,
+    sliderV,
     /** 對話框基底 */
     dialog,
     /** 日期選擇器 */
