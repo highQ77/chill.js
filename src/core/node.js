@@ -194,6 +194,7 @@ class Div extends NodeBase {
 
     /** push a child */
     pushChild(jsdom) { // 🟢
+        jsdom.__parent = this
         this.__children.push(jsdom)
         this.getH5Tag().append(jsdom.getH5Tag())
     }
@@ -1114,6 +1115,7 @@ class VMList extends Div {
 
     /** push a child */
     pushChild(item, updateIndex) {
+        if (!this?.__item_tpl) return
         let jsdom = this.__item_tpl(item, updateIndex)
         super.pushChild(jsdom)
     }
@@ -1244,8 +1246,78 @@ class VMSingle extends Div {
 
 const getUniqueId = () => (Date.now() + '').slice(7) + (Math.random().toFixed(3) + '').split('.')[1] // 防止 id 衝突
 
-// scroller 
-const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrackVOffsetX, cssTrackHOffsetY, contentNode, policy = 0) => {
+// selection - dropdown menu
+const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssThemeColor, cssThumbColor, cssTrackColor, clickCallback) => {
+    if (!id) id = getUniqueId()
+
+    // calculate item height
+    let app = node.app()
+    app.pushChild(vmItemTemplate('1'))
+    let cs = app.getChildren()
+    let itemHeight = cs[cs.length - 1].getH5Tag().getBoundingClientRect().height
+    let itemsHeight = vmDatas.length * itemHeight
+    if (itemsHeight > maxHeight) itemsHeight = maxHeight
+    app.popChild()
+
+    // jsdom
+    const jsdom = node.div(id + 'selection').setStyle({ position: 'relative', width: cssWidth, cursor: 'pointer' }).setChildren([
+        node.div(id + 'title').setText(title).setStyle({ background: cssThemeColor, boxShadow: '0px 0px 5px black', borderRadius: '8px', padding: '5px 10px' }),
+        node.scroller(id + 'menuScroller', cssWidth, itemsHeight + 'px', cssThumbColor, cssTrackColor, '0px', '0px',
+            node.vm_list(id + 'menu', vmItemTemplate, vmDatas).setStyle({ display: 'none', boxShadow: '0px 0px 5px black', width: cssWidth, background: 'rgba(100,100,100, 0.6)', backdropFilter: 'blur(10px)' })
+            , 0, true, (scrollComs) => {
+                let { content, wrapper } = scrollComs
+                let itemsHeight = vmDatas.length * itemHeight
+                if (itemsHeight > maxHeight) itemsHeight = maxHeight
+                content.setStyle({ height: itemsHeight + 'px' })
+                wrapper.setStyle({ height: itemsHeight + 'px' })
+                selectScroller.setStyle({ height: itemsHeight + 'px' })
+            }).setStyle({ position: 'absolute', zIndex: '999', overflow: 'hidden' })
+    ]).on('mouseenter', () => {
+        selectScroller.setStyle({ display: 'block' })
+        let titleRect = selectTitle.getH5Tag().getBoundingClientRect()
+        let scroRect = selectScroller.getH5Tag().getBoundingClientRect()
+        selectMenu.setStyle({ display: 'block' })
+        if (scroRect.top + scroRect.height > window.innerHeight) {
+            selectScroller.setStyle({ top: -scroRect.height + 'px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' })
+            selectTitle.setStyle({ borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
+        } else {
+            selectScroller.setStyle({ top: titleRect.height + 'px', borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
+            selectTitle.setStyle({ borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' })
+        }
+    }).on('mouseleave', () => {
+        let titleRect = selectTitle.getH5Tag().getBoundingClientRect()
+        selectTitle.setStyle({ borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
+        selectScroller.setStyle({ top: titleRect.height + 'px', display: 'none' })
+    })
+
+    let selectScroller = jsdom.getChildById(id + 'menuScroller')
+    let selectMenu = jsdom.getChildById(id + 'menu')
+    let selectTitle = jsdom.getChildById(id + 'title')
+
+    // when push item, item will bind a click function
+    let originalData = [...vmDatas]
+    vmDatas.length = 0
+    let push = vmDatas.push
+    vmDatas.push = function (item) {
+        let index = push(item)
+        requestAnimationFrame(() => {
+            let clickElement = selectMenu.getChildren()[index - 1]
+            clickElement.on('click', (e, t) => {
+                clickCallback && clickCallback(t.getText())
+                selectTitle.setText(title + ' - ' + t.getText())
+            })
+        })
+    }
+    while (originalData.length != 0) {
+        let item = originalData.shift()
+        vmDatas.push(item)
+    }
+
+    return jsdom
+}
+
+/**  scroller (policy: 0-vertical, 1-horizontal, 2-both), isIndexPage - scroller observer will not destroy */
+const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrackVOffsetX, cssTrackHOffsetY, contentNode, policy = 0, isIndexPage = true, resizeCallback) => {
     if (!id) id = getUniqueId()
 
     // fit scroll content
@@ -1259,7 +1331,7 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
     }
 
     // scroller jsdom
-    const scro = node.div(id).setStyle({ position: 'relative', display: 'inline-flex', cssWidth, cssHeight }).setChildren([
+    const scro = node.div(id).setStyle({ position: 'relative', display: 'inline-flex' }).setChildren([
         node.div(id + '__contentWrapper').setStyle({ position: 'relative', overflow: 'auto', width: cssWidth, height: cssHeight }).setChildren([
             node.div(id + '__content').setStyle({ position: 'absolute', left: '0px', top: '0px', width: contentW || cssWidth, height: cssHeight }).setChildren([contentNode]),
         ]),
@@ -1276,6 +1348,15 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
     const thumbH = scro.getChildById(id + '__thumbH')
     const content = scro.getChildById(id + '__content')
     const wrapper = scro.getChildById(id + '__contentWrapper')
+
+    const scrollerComponents = {
+        barV,
+        thumbV,
+        barH,
+        thumbH,
+        content,
+        wrapper
+    }
 
     // scroll vertical
     if (policy == 0 || policy == 2) {
@@ -1355,14 +1436,15 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
                 barV.setStyle({ opacity: '0' })
             }
             scrollfunc()
+            resizeCallback && resizeCallback(scrollerComponents)
         })
-        observer.observe(scro.getH5Tag())
+        observer.observe(contentNode.getH5Tag())
 
         // page leave watcher, and observer disconnect
         let storeHref = location.href
         let pageObserver = () => {
-            if (location.href != storeHref) {
-                observer.disconnect()
+            if (location.href != storeHref && !isIndexPage) {
+                isIndexPage && observer.disconnect()
                 window.removeEventListener('popstate', pageObserver)
             }
         }
@@ -1448,13 +1530,14 @@ const scroller = (id, cssWidth, cssHeight, cssThumbColor, cssTrackColor, cssTrac
                 barH.setStyle({ opacity: '0' })
             }
             scrollfunc()
+            resizeCallback && resizeCallback(scrollerComponents)
         })
-        observer.observe(scro.getH5Tag())
+        observer.observe(contentNode.getH5Tag())
 
         // page leave watcher, and observer disconnect
         let storeHref = location.href
         let pageObserver = () => {
-            if (location.href != storeHref) {
+            if (location.href != storeHref && !isIndexPage) {
                 observer.disconnect()
                 window.removeEventListener('popstate', pageObserver)
             }
@@ -1899,6 +1982,8 @@ export const node = {
     img: (id) => new Img(id),
     /** 取得 div img 節點 */
     divimg,
+    /** 取得 select 節點 */
+    vm_select,
     /** 取得 canvas 節點 */
     canvas: (id) => new Canvas(id),
     /** 取得 vm input 節點 */

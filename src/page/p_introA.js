@@ -13,7 +13,6 @@ export const p_introA = () => {
     const singleItemTemplate = (item) => node.div().setText(item).setClass('p-1 m-1 bg-[#CCAA33]')
     const vmItemData = node.proxy(store.data.p_introA.fruit)
     const oneItemData = node.proxy(store.data.p_introA.single)
-    // const testSingleData = node.proxy(['hi']) // use testSingleData[0] to get or set value
 
     // UI DOM Build
     let jsdom = node.div('hiA').setStyle(style_hi).setChildren([
