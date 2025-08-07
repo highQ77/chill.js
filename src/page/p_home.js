@@ -18,9 +18,9 @@ export const p_home = () => {
     // UI DOM Build
     let jsdom = node.divimg('', 'swril.jpg').setClass('h-[600px] flex items-end pb-[30px]').setStyle({ minHeight: 'calc(100dvh - 102px)' }).setChildren([
         node.div().setClass('bg-[#00000099] backdrop-blur-sm p-5 h-[450px] overflow-hidden').setChildren([
-            node.h('', 1).setClass('text-3xl').setText('歡迎使用 chill.js 超簡單 SPA 框架'),
+            node.h('', 1).setClass('text-3xl').setText('你今天 chill 了沒？'),
             node.div().setClass('text-[springgreen]').setText(' easy all-in-one ( jsdom / mvvm / store / router ) javascript framework'),
-            node.div().setText('適用於 web 單頁應用程式開發'),
+            node.div().setText('適用於 web SPA 單頁應用程式開發'),
             node.div().setText('features').setClass('text-2xl').setStyle({ marginTop: '30px' }),
             node.scroller('featuresScroller', 'calc(100vw - 30px)', '250px', 'springgreen', '#333', '-5px', '0px', ui.layoutH(node.vm_list('features', itemsTemplate, itemsData), 3))
         ]),

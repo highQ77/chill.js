@@ -13,7 +13,7 @@ export const p_introB = () => {
     const vmSelectItemTemplate = item => {
         return node.div().setClass('hover:bg-[#33333366] cursor-pointer')
             .setStyle({ borderTop: '1px solid #99999966', padding: '5px' })
-            .setText('🉑 ' + item + ' item')
+            .setText('🉑 ' + 'item ' + item)
     }
     const vmSelectItemDatas = node.proxy(Array(10).fill(0).map((i, idx) => idx + ''))
 
@@ -42,7 +42,7 @@ export const p_introB = () => {
             ui.button('text', 'text'),
             ui.button('password', 'password'),
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
-            node.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, '300px', 250, '#333', '#555', '#333', (item) => window.alert(item)).setStyle({ marginTop: '3px' }),
+            node.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, '300px', 250, '#333', '#555', '#333', (item) => '').setStyle({ marginTop: '3px' }),
             node.hr(),
             node.div().setText('image'),
             node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2)
