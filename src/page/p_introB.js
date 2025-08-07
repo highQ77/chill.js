@@ -46,7 +46,7 @@ export const p_introB = () => {
             ui.button('text', 'text'),
             ui.button('password', 'password'),
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
-            node.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, '300px', 250, '#333', '#555', '#333', 'springgreen', (item) => '').setStyle({ marginTop: '3px' }),
+            ui.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, (item) => '').setStyle({ marginTop: '3px' }),
             node.hr(),
             node.div().setText('image'),
             node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2)

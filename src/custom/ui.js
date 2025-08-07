@@ -53,14 +53,16 @@ function date(callback) {
 
 // ---------------- Color Picker
 
-const colorClass = {
-
-}
+const colorClass = {}
 
 function color(callback) {
     return node.color(essentialDialogStyle, colorClass, '295px', '288px', callback)
 }
 
+// ---------------- Selection
+function vm_select(id, title, vmView, vmModel, clickCallback) {
+    return node.vm_select(id, title, vmView, vmModel, '300px', 250, '#333', '#555', '#333', 'springgreen', clickCallback).setClass(`select-none`)
+}
 
 // ---------------- Layout
 const layoutV = (node, gapVal = 0) => {
@@ -78,6 +80,7 @@ export const ui = {
     confirm,
     date,
     color,
+    vm_select,
     layoutV,
     layoutH,
 }

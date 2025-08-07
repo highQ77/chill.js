@@ -1260,8 +1260,26 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
     app.popChild()
 
     // jsdom
+    let isOpenMenu = false
     const jsdom = node.div(id + 'selection').setStyle({ position: 'relative', width: cssWidth, cursor: 'pointer' }).setChildren([
-        node.div(id + 'title').setText(title).setStyle({ background: cssThemeColor, boxShadow: '0px 0px 5px black', borderRadius: '8px', padding: '5px 10px' }),
+        node.div(id + 'title').setStyle({ display: 'flex', justifyContent: 'space-between', width: cssWidth, background: cssThemeColor, boxShadow: '0px 0px 5px black', borderRadius: '8px', padding: '5px 10px' }).setChildren([
+            node.div(id + 'titleText').setText(title),
+            node.div().setText('≡')
+        ]).on('click', () => {
+            if (isOpenMenu) return
+            isOpenMenu = true
+            selectScroller.setStyle({ display: 'block' })
+            let titleRect = selectTitle.getH5Tag().getBoundingClientRect()
+            let scroRect = selectScroller.getH5Tag().getBoundingClientRect()
+            selectMenu.setStyle({ display: 'block' })
+            if (scroRect.top + scroRect.height > window.innerHeight) {
+                selectScroller.setStyle({ top: -scroRect.height + 'px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' })
+                selectTitle.setStyle({ borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
+            } else {
+                selectScroller.setStyle({ top: titleRect.height + 'px', borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
+                selectTitle.setStyle({ borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' })
+            }
+        }),
         node.scroller(id + 'menuScroller', cssWidth, itemsHeight + 'px', cssThumbColor, cssTrackColor, '0px', '0px',
             node.vm_list(id + 'menu', vmItemTemplate, vmDatas).setStyle({ display: 'none', boxShadow: '0px 0px 5px black', width: cssWidth, background: 'rgba(100,100,100, 0.6)', backdropFilter: 'blur(10px)' })
             , 0, true, (scrollComs) => {
@@ -1272,19 +1290,8 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
                 wrapper.setStyle({ height: itemsHeight + 'px' })
                 selectScroller.setStyle({ height: itemsHeight + 'px' })
             }).setStyle({ position: 'absolute', zIndex: '999', overflow: 'hidden' })
-    ]).on('mouseenter', () => {
-        selectScroller.setStyle({ display: 'block' })
-        let titleRect = selectTitle.getH5Tag().getBoundingClientRect()
-        let scroRect = selectScroller.getH5Tag().getBoundingClientRect()
-        selectMenu.setStyle({ display: 'block' })
-        if (scroRect.top + scroRect.height > window.innerHeight) {
-            selectScroller.setStyle({ top: -scroRect.height + 'px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' })
-            selectTitle.setStyle({ borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
-        } else {
-            selectScroller.setStyle({ top: titleRect.height + 'px', borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
-            selectTitle.setStyle({ borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' })
-        }
-    }).on('mouseleave', () => {
+    ]).on('mouseleave', () => {
+        isOpenMenu = false
         let titleRect = selectTitle.getH5Tag().getBoundingClientRect()
         selectTitle.setStyle({ borderTopLeftRadius: '8px', borderTopRightRadius: '8px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' })
         selectScroller.setStyle({ top: titleRect.height + 'px', display: 'none' })
@@ -1293,6 +1300,7 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
     let selectScroller = jsdom.getChildById(id + 'menuScroller')
     let selectMenu = jsdom.getChildById(id + 'menu')
     let selectTitle = jsdom.getChildById(id + 'title')
+    let selectTitleText = jsdom.getChildById(id + 'titleText')
 
     // when push item, item will bind a click function
     let originalData = [...vmDatas]
@@ -1310,7 +1318,8 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
                 })
                 t.setStyle({ borderLeft: '1px solid ' + cssSelecedColor })
                 clickCallback && clickCallback(t.getText())
-                selectTitle.setText(title + ' - ' + t.getText())
+                selectTitleText.setText(title + ' - ' + t.getText())
+                selectScroller.setStyle({ display: 'none' })
             })
         })
     }
