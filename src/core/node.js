@@ -1302,7 +1302,7 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
     let selectTitle = jsdom.getChildById(id + 'title')
     let selectTitleText = jsdom.getChildById(id + 'titleText')
 
-    // when push item, item will bind a click function
+    // when push an item, item will bind a click function
     let originalData = [...vmDatas]
     vmDatas.length = 0
     let push = vmDatas.push
@@ -1332,7 +1332,7 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
 }
 
 // radio
-const vm_radio = (id, vmDatas, clickCallback) => {
+const vm_radio = (id, vmDatas, checkedColor, clickCallback) => {
     if (!id) id = getUniqueId()
     const vmItemTemplate = (item, idx) => {
         return node.div().setStyle({ display: 'flex', alignItems: 'center', cursor: 'pointer' }).setChildren([
@@ -1356,8 +1356,8 @@ const vm_radio = (id, vmDatas, clickCallback) => {
                 allNode.forEach(node => {
                     node.getChildById('radioItem').setStyle({ background: 'white' })
                 })
-                t.getChildById('radioItem').setStyle({ background: 'springgreen' })
-                clickCallback && clickCallback(index) // 🟠 output select list
+                t.getChildById('radioItem').setStyle({ background: checkedColor })
+                clickCallback && clickCallback(index)
             })
         })
     }
@@ -1370,7 +1370,7 @@ const vm_radio = (id, vmDatas, clickCallback) => {
 }
 
 // checkbox
-const vm_checkbox = (id, vmDatas, clickCallback) => {
+const vm_checkbox = (id, vmDatas, checkedColor, clickCallback) => {
     if (!id) id = getUniqueId()
     const vmItemTemplate = (item, idx) => {
         return node.div().setStyle({ display: 'flex', alignItems: 'center', cursor: 'pointer' }).setChildren([
@@ -1394,14 +1394,14 @@ const vm_checkbox = (id, vmDatas, clickCallback) => {
             clickElement.on('click', (e, t) => {
                 let index = t.getParent().getChildren().findIndex(c => c == t)
                 if (!toggle) {
-                    t.getChildById('checkboxItem').setStyle({ background: 'springgreen' })
+                    t.getChildById('checkboxItem').setStyle({ background: checkedColor })
                     storeArr.push(index)
                 } else {
                     t.getChildById('checkboxItem').setStyle({ background: 'white' })
                     storeArr = storeArr.filter(i => i != index)
                 }
                 toggle = !toggle
-                clickCallback && clickCallback(storeArr) // 🟠 output select list
+                clickCallback && clickCallback(storeArr)
             })
         })
     }
@@ -1833,9 +1833,57 @@ function divimg(id, src) {
     return node.div(id).setStyle({ background: `url(${getAssetsPath(src)})` })
 }
 
-// 🟠 preparing
-const pageer = (id, proxyData) => {
+// pager
+const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
     if (!id) id = getUniqueId()
+
+    let globalColor = 'slate-800'
+    const buttonClass = `bg-${globalColor} inline-flex p-2 cursor-pointer hover:bg-[#FFFFFF22] border-1 border-[transparent] hover:border-b-[springgreen] m-1 rounded-sm select-none`
+
+    let currentPage = 1
+    let totalPages = Math.ceil(proxyData.length / itemCountPerPage)
+
+    let setPage = (idx) => {
+        if (idx < 1) idx = 1
+        if (idx > totalPages) idx = totalPages
+        currentPage = idx
+
+        // show hide control
+        let startIndex = (currentPage - 1) * itemCountPerPage
+        let endIndex = startIndex + itemCountPerPage - 1
+        vmList.getChildren().forEach((item, idx) => {
+            if (idx >= startIndex && idx <= endIndex) {
+                item.setStyle({ display: 'block' })
+            } else {
+                item.setStyle({ display: 'none' })
+            }
+        })
+        // update info
+        info.setText(' ' + currentPage + ' / ' + totalPages + ' - ' + itemCountPerPage + ' rows per page')
+    }
+
+    let jsdom = node.div(id).setChildren([
+        vmList.setStyle({ background: '#222' }),
+        node.div().setStyle({ display: 'flex', alignItems: 'center' }).setChildren([
+            node.button('', '<<', buttonClass).on('click', _ => setPage(1)),
+            node.button('', '<', buttonClass).on('click', _ => setPage(currentPage - 1)),
+            ...Array(totalPages).fill(0).map((i, idx) => node.button('', idx + 1 + '', buttonClass).on('click', _ => setPage(idx + 1))),
+            node.button('', '>', buttonClass).on('click', _ => setPage(currentPage + 1)),
+            node.button('', '>>', buttonClass).on('click', _ => setPage(totalPages)),
+            node.div(id + 'info'),
+        ]),
+    ])
+
+    let info = jsdom.getChildById(id + 'info')
+
+    requestAnimationFrame(() => {
+        vmList.setStyle({ height: vmList.getH5Tag().getBoundingClientRect().height + 'px' })
+    })
+
+    // default page set
+    setPage(1)
+
+    return jsdom
 }
 
 //  proxy prop watcher
@@ -2111,8 +2159,8 @@ export const node = {
     alert,
     /** dialog 延伸的確認視窗 */
     confirm,
-    /** 針對 vm_list 篩選顯示資料 */ // 🟠 尚未開發
-    pageer,
+    /** 針對 vm_list 篩選顯示資料 */
+    pager,
     /** 將資料轉為 View Model 間溝通的橋樑，使用方法如 node.proxy(store.data.xxxx...) */
     proxy,
     /** 跨元件溝通 */

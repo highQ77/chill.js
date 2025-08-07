@@ -23,6 +23,9 @@ export const p_introB = () => {
     const vmRadioDatas = node.proxy(Array(10).fill(0).map((i, idx) => 'radio ' + idx.toString()))
     const vmCheckboxDatas = node.proxy(Array(10).fill(0).map((i, idx) => 'checkbox ' + idx.toString()))
 
+    const vmPagerDataView = (item, idx) => node.div().setText(item).setClass('p-1 m-1 bg-[#666]')
+    const vmPagerDatas = node.proxy(Array(66).fill(0).map((i, idx) => 'pager ' + idx.toString()))
+
 
     // UI DOM Build
     let jsdom = node.div().setStyle(style_hi).setChildren([
@@ -51,12 +54,15 @@ export const p_introB = () => {
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
             ui.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, (item) => '').setStyle({ marginTop: '3px' }),
             node.div().setText('radio buttons').setStyle({ padding: '20px 0', color: '#666' }),
-            ui.layoutH(node.vm_radio('radio', vmRadioDatas, d => console.log(d)), 6),
+            ui.layoutH(node.vm_radio('radio', vmRadioDatas, 'springgreen', d => console.log(d)), 6),
             node.div().setText('checkbox buttons').setStyle({ padding: '20px 0', color: '#666' }),
-            ui.layoutH(node.vm_checkbox('checkbox', vmCheckboxDatas, d => console.log(d)), 6),
+            ui.layoutH(node.vm_checkbox('checkbox', vmCheckboxDatas, 'springgreen', d => console.log(d)), 6),
             node.hr(),
             node.div().setText('image'),
-            node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2)
+            node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2),
+            node.hr(),
+            node.div().setText('pager'),
+            node.pager('pager', vmPagerDatas, node.vm_list('pagerData', vmPagerDataView, vmPagerDatas), 9)
         ])
     ])
 
