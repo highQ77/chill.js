@@ -2,7 +2,7 @@
 
 // [todo]
 // 🟣 store fetch data 功能開發 (目前是假資料)
-// 🟣 essential ui component: date✅ / time? / date time? / checkbox✅ / radio button✅ / select✅ / pager? / slider / splitter(可抓取移動的分割線)
+// 🟣 essential ui component: date✅ / time? / date time? / checkbox✅ / radio button✅ / select✅ / pager✅ / splitter✅ / slider 
 // 🟣 .isFormItem(itemKey) // NodeBase
 
 // [intro]

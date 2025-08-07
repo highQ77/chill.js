@@ -1833,6 +1833,68 @@ function divimg(id, src) {
     return node.div(id).setStyle({ background: `url(${getAssetsPath(src)})` })
 }
 
+// splitterH
+const splitterH = (id, cssHeight, leftNode, rightNode) => {
+    if (!id) id = getUniqueId()
+
+    let jsdom = node.div(id).setStyle({ display: 'flex', height: cssHeight, overflow: 'hidden' }).setChildren([
+        leftNode.setStyle({ height: cssHeight, width: 'calc(50% - 3px)', overflow: 'hidden' }),
+        node.div(id + 'resizer').setStyle({ width: '6px', cursor: 'ew-resize', background: '#111', display: 'flex', justifyContent: 'center', alignItems: 'center' }).setChildren([
+            node.div().setStyle({ width: '1px', height: '20px', background: 'springgreen' })
+        ]),
+        rightNode.setStyle({ height: cssHeight, width: 'calc(50% - 3px)', overflow: 'hidden' }),
+    ])
+
+    let update = e => {
+        let rect = jsdom.getH5Tag().getBoundingClientRect()
+        let x = e.pageX - rect.left
+        let percent = x / rect.width * 100
+        leftNode.setStyle({ width: `calc(${percent}% - 3px)` })
+        rightNode.setStyle({ width: `calc(${100 - percent}% - 3px)` })
+    }
+
+    let resizer = jsdom.getChildById(id + 'resizer')
+
+    let isMouseDown = false
+    resizer.on('mousedown', e => { isMouseDown = true })
+    jsdom.on('mousemove', e => { isMouseDown && update(e) })
+    jsdom.on('mouseup', e => { isMouseDown = false })
+    jsdom.on('mouseleave', _ => { isMouseDown = false })
+
+    return jsdom
+}
+
+// splitterV
+const splitterV = (id, cssWidth, topNode, bottomNode) => {
+    if (!id) id = getUniqueId()
+
+    let jsdom = node.div(id).setStyle({ width: cssWidth, height: '100%', overflow: 'hidden' }).setChildren([
+        topNode.setStyle({ width: cssWidth, height: 'calc(50% - 3px)', overflow: 'hidden' }),
+        node.div(id + 'resizer').setStyle({ height: '6px', cursor: 'ns-resize', background: '#111', display: 'flex', justifyContent: 'center', alignItems: 'center' }).setChildren([
+            node.div().setStyle({ width: '20px', height: '1px', background: 'springgreen' })
+        ]),
+        bottomNode.setStyle({ width: cssWidth, height: 'calc(50% - 3px)', overflow: 'hidden' }),
+    ])
+
+    let update = e => {
+        let rect = jsdom.getH5Tag().getBoundingClientRect()
+        let y = e.pageY - rect.top
+        let percent = y / rect.height * 100
+        topNode.setStyle({ height: `calc(${percent}% - 3px)` })
+        bottomNode.setStyle({ height: `calc(${100 - percent}% - 3px)` })
+    }
+
+    let resizer = jsdom.getChildById(id + 'resizer')
+
+    let isMouseDown = false
+    resizer.on('mousedown', e => { isMouseDown = true })
+    jsdom.on('mousemove', e => { isMouseDown && update(e) })
+    jsdom.on('mouseup', e => { isMouseDown = false })
+    jsdom.on('mouseleave', _ => { isMouseDown = false })
+
+    return jsdom
+}
+
 // pager
 const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
     if (!id) id = getUniqueId()
@@ -2168,6 +2230,9 @@ export const node = {
     confirm,
     /** 針對 vm_list 篩選顯示資料 */
     pager,
+    /** 分割線 */
+    splitterH,
+    splitterV,
     /** 將資料轉為 View Model 間溝通的橋樑，使用方法如 node.proxy(store.data.xxxx...) */
     proxy,
     /** 跨元件溝通 */

@@ -62,7 +62,18 @@ export const p_introB = () => {
             node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2),
             node.hr(),
             node.div().setText('pager'),
-            node.pager('pager', vmPagerDatas, node.vm_list('pagerData', vmPagerDataView, vmPagerDatas), 9)
+            node.pager('pager', vmPagerDatas, node.vm_list('pagerData', vmPagerDataView, vmPagerDatas), 9),
+            node.hr(),
+            node.div().setText('splitter'),
+            node.splitterH('splitter', '300px',
+                node.div().setStyle({ background: '#333' }).setText('Left Part'),
+                node.div().setStyle({ background: '#333' }).setChildren([
+                    node.splitterV('splitterV', '100%',
+                        node.div().setStyle({ background: '#333' }).setText('Right-Top Part'),
+                        node.div().setStyle({ background: '#333' }).setText('Right-Bottom Part')
+                    )
+                ])
+            ).setClass('select-none')
         ])
     ])
 
