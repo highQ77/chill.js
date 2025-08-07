@@ -1842,7 +1842,7 @@ const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
     let currentPage = 1
     let totalPages = Math.ceil(proxyData.length / itemCountPerPage)
 
-    let setPage = (idx, btn) => {
+    let setPage = (idx) => {
         if (idx < 1) idx = 1
         if (idx > totalPages) idx = totalPages
         currentPage = idx
@@ -1862,11 +1862,11 @@ const pager = (id, proxyData, vmList, itemCountPerPage = 5) => {
 
         // num buttons update
         numButtons.forEach(b => b.setStyle({ border: '1px solid #333' }))
-        btn && btn.setStyle({ border: '1px solid springgreen' })
+        numButtons[currentPage - 1].setStyle({ border: '1px solid springgreen' })
     }
 
     // center num buttons
-    let numButtons = Array(totalPages).fill(0).map((i, idx) => node.button('', idx + 1 + '', buttonClass).on('click', (e, t) => setPage(idx + 1, t)))
+    let numButtons = Array(totalPages).fill(0).map((i, idx) => node.button('', idx + 1 + '', buttonClass).on('click', (e, t) => setPage(idx + 1)))
 
     // pager jsdom
     let jsdom = node.div(id).setChildren([
