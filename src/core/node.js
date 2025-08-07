@@ -1212,7 +1212,7 @@ class VMSingle extends Div {
     remove() {
         super.remove()
         if (this.__items.vms.length == 1) {
-            this.__items.vms.length = 0 //
+            this.__items.vms.length = 0
             this.__items.vms = null
         }
 
@@ -1289,7 +1289,7 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
                 content.setStyle({ height: itemsHeight + 'px' })
                 wrapper.setStyle({ height: itemsHeight + 'px' })
                 selectScroller.setStyle({ height: itemsHeight + 'px' })
-            }).setStyle({ position: 'absolute', zIndex: '999', overflow: 'hidden' })
+            }).setStyle({ position: 'absolute', zIndex: '999', overflow: 'hidden', display: 'none' })
     ]).on('mouseleave', () => {
         isOpenMenu = false
         let titleRect = selectTitle.getH5Tag().getBoundingClientRect()
@@ -1320,6 +1320,88 @@ const vm_select = (id, title, vmItemTemplate, vmDatas, cssWidth, maxHeight, cssT
                 clickCallback && clickCallback(t.getText())
                 selectTitleText.setText(title + ' - ' + t.getText())
                 selectScroller.setStyle({ display: 'none' })
+            })
+        })
+    }
+    while (originalData.length != 0) {
+        let item = originalData.shift()
+        vmDatas.push(item)
+    }
+
+    return jsdom
+}
+
+// radio
+const vm_radio = (id, vmDatas, clickCallback) => {
+    if (!id) id = getUniqueId()
+    const vmItemTemplate = (item, idx) => {
+        return node.div().setStyle({ display: 'flex', alignItems: 'center', cursor: 'pointer' }).setChildren([
+            node.div('radioItem').setStyle({ margin: '5px', width: '12px', height: '12px', background: 'white', borderRadius: '100%', border: '1px solid black', outline: '1px solid gray' }),
+            node.div().setStyle({ color: 'white' }).setText(item)
+        ])
+    }
+    let jsdom = node.vm_list(id + 'radio', vmItemTemplate, vmDatas)
+
+    // when push item, item will bind a click function
+    let originalData = [...vmDatas]
+    vmDatas.length = 0
+    let push = vmDatas.push
+    vmDatas.push = function (item) {
+        let index = push(item)
+        requestAnimationFrame(() => {
+            let allNode = jsdom.getChildren()
+            let clickElement = allNode[index - 1]
+            clickElement.on('click', (e, t) => {
+                let index = t.getParent().getChildren().findIndex(c => c == t)
+                allNode.forEach(node => {
+                    node.getChildById('radioItem').setStyle({ background: 'white' })
+                })
+                t.getChildById('radioItem').setStyle({ background: 'springgreen' })
+                clickCallback && clickCallback(index) // 🟠 output select list
+            })
+        })
+    }
+    while (originalData.length != 0) {
+        let item = originalData.shift()
+        vmDatas.push(item)
+    }
+
+    return jsdom
+}
+
+// checkbox
+const vm_checkbox = (id, vmDatas, clickCallback) => {
+    if (!id) id = getUniqueId()
+    const vmItemTemplate = (item, idx) => {
+        return node.div().setStyle({ display: 'flex', alignItems: 'center', cursor: 'pointer' }).setChildren([
+            node.div('checkboxItem').setStyle({ margin: '5px', width: '12px', height: '12px', background: 'white', border: '1px solid black', outline: '1px solid gray' }),
+            node.div().setStyle({ color: 'white' }).setText(item)
+        ])
+    }
+    let jsdom = node.vm_list(id + 'checkbox', vmItemTemplate, vmDatas)
+
+    // when push item, item will bind a click function
+    let storeArr = []
+    let originalData = [...vmDatas]
+    vmDatas.length = 0
+    let push = vmDatas.push
+    vmDatas.push = function (item) {
+        let index = push(item)
+        requestAnimationFrame(() => {
+            let allNode = jsdom.getChildren()
+            let clickElement = allNode[index - 1]
+            let toggle = false
+            clickElement.on('click', (e, t) => {
+                let index = t.getParent().getChildren().findIndex(c => c == t)
+                if (!toggle) {
+                    t.getChildById('checkboxItem').setStyle({ background: 'springgreen' })
+                    storeArr.push(index)
+                } else {
+                    t.getChildById('checkboxItem').setStyle({ background: 'white' })
+                    storeArr = storeArr.filter(i => i != index)
+                }
+                toggle = !toggle
+                clickCallback && clickCallback(storeArr) // 🟠 output select list
             })
         })
     }
@@ -1997,10 +2079,14 @@ export const node = {
     img: (id) => new Img(id),
     /** 取得 div img 節點 */
     divimg,
-    /** 取得 select 節點 */
-    vm_select,
     /** 取得 canvas 節點 */
     canvas: (id) => new Canvas(id),
+    /** 取得 select 節點 */
+    vm_select,
+    /** 取得 radio 節點 */
+    vm_radio,
+    /** 取得 checkbox 節點 */
+    vm_checkbox,
     /** 取得 vm input 節點 */
     vm_input: (id, data, type) => new Input(id, data, type), // model view
     /** 取得 vm textarea 節點 */

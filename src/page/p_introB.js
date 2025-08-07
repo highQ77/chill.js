@@ -20,6 +20,9 @@ export const p_introB = () => {
             .setText(icon + ' ' + item)
     }
     const vmSelectItemDatas = node.proxy(['好好', '好棒', '好累', '好神', '好運', '好開心', '好朋友', '好神奇', ...Array(10).fill(0).map((i, idx) => idx.toString())])
+    const vmRadioDatas = node.proxy(Array(10).fill(0).map((i, idx) => 'radio ' + idx.toString()))
+    const vmCheckboxDatas = node.proxy(Array(10).fill(0).map((i, idx) => 'checkbox ' + idx.toString()))
+
 
     // UI DOM Build
     let jsdom = node.div().setStyle(style_hi).setChildren([
@@ -47,6 +50,10 @@ export const p_introB = () => {
             ui.button('password', 'password'),
             ui.file('file', 'select file', 2, result => oneItemData[0] = result),
             ui.vm_select('select', 'menu', vmSelectItemTemplate, vmSelectItemDatas, (item) => '').setStyle({ marginTop: '3px' }),
+            node.div().setText('radio buttons').setStyle({ padding: '20px 0', color: '#666' }),
+            ui.layoutH(node.vm_radio('radio', vmRadioDatas, d => console.log(d)), 6),
+            node.div().setText('checkbox buttons').setStyle({ padding: '20px 0', color: '#666' }),
+            ui.layoutH(node.vm_checkbox('checkbox', vmCheckboxDatas, d => console.log(d)), 6),
             node.hr(),
             node.div().setText('image'),
             node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2)
