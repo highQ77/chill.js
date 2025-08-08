@@ -1974,8 +1974,8 @@ const sliderV = (id, cssHeight, initVal, minVal, maxVal, callback) => {
         let total = maxVal - minVal
         let ratio = (initVal - minVal) / total
         let rect = jsdom.getH5Tag().getBoundingClientRect()
-        thumb.setStyle({ top: (rect.height * ratio - 5) + 'px' })
-        thumbInfo.setText(Math.round(minVal + total * (1 - ratio)))
+        thumb.setStyle({ top: (rect.height * (1 - ratio) - 5) + 'px' })
+        thumbInfo.setText(Math.round(minVal + total * ratio))
     })
 
     return jsdom
