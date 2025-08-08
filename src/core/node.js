@@ -1833,8 +1833,8 @@ function divimg(id, src) {
     return node.div(id).setStyle({ background: `url(${getAssetsPath(src)})` })
 }
 
-// splitterH
-const splitterH = (id, cssHeight, leftNode, rightNode) => {
+// splitterV
+const splitterV = (id, cssHeight, leftNode, rightNode) => {
     if (!id) id = getUniqueId()
 
     let jsdom = node.div(id).setStyle({ display: 'flex', height: cssHeight, overflow: 'hidden' }).setChildren([
@@ -1864,8 +1864,8 @@ const splitterH = (id, cssHeight, leftNode, rightNode) => {
     return jsdom
 }
 
-// splitterV
-const splitterV = (id, cssWidth, topNode, bottomNode) => {
+// splitterH
+const splitterH = (id, cssWidth, topNode, bottomNode) => {
     if (!id) id = getUniqueId()
 
     let jsdom = node.div(id).setStyle({ width: cssWidth, height: '100%', overflow: 'hidden' }).setChildren([
@@ -2276,8 +2276,9 @@ export const node = {
     scroller,
     /** 一般按鈕或是路由按鈕 */
     button,
-    /** 滑桿 */
+    /** 水平滑桿 */
     sliderH,
+    /** 垂直滑桿 */
     sliderV,
     /** 對話框基底 */
     dialog,
@@ -2291,8 +2292,9 @@ export const node = {
     confirm,
     /** 針對 vm_list 篩選顯示資料 */
     pager,
-    /** 分割線 */
+    /** 水平分割線 */
     splitterH,
+    /** 垂直分割線 */
     splitterV,
     /** 將資料轉為 View Model 間溝通的橋樑，使用方法如 node.proxy(store.data.xxxx...) */
     proxy,

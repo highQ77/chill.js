@@ -77,10 +77,10 @@ export const p_introB = () => {
             node.hr(),
             // splitter
             node.div().setText('splitter'),
-            node.splitterH('splitter', '300px',
+            node.splitterV('splitter', '300px',
                 node.div().setStyle({ background: '#333' }).setText('Left Part').setClass('rounded-sm p-2'),
                 node.div().setChildren([
-                    node.splitterV('splitterV', '100%',
+                    node.splitterH('splitterV', '100%',
                         node.div().setStyle({ background: '#333' }).setText('Right-Top Part').setClass('rounded-sm p-2'),
                         node.div().setStyle({ background: '#333' }).setText('Right-Bottom Part').setClass('rounded-sm p-2')
                     ).setClass('rounded-sm')
