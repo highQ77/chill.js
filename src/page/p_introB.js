@@ -1,3 +1,4 @@
+import { quilljs } from "../../plugins/quill/quill.js"
 import { node } from "../core/node.js"
 import { store } from "../core/store.js"
 import { ui } from "../custom/ui.js"
@@ -32,6 +33,11 @@ export const p_introB = () => {
         node.span('sub').setText('Misc.').setClass('text-3xl'),
         node.div().setChildren([
             node.hr(),
+            // rich text editor
+            node.div().setText('rich text editor'),
+            node.div().setStyle({ margin: '30px 0', background: 'white', color: 'black' }).setChildren([
+                quilljs.create('editor'),
+            ]),
             // dialogs
             node.div().setText('dialogs'),
             ui.button('alert', 'alert'),
