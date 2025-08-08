@@ -1766,8 +1766,6 @@ const time = (essentialDialogStyle, width, height, callback) => {
         node.div('timeCircle').setStyle({ position: 'relative', width, height, background: '#C90' })
     ])
     let buttons = []
-    let btn = node.button('', 'OK', dialogButtonClass)
-    let reset = node.button('', 'Reset', dialogButtonClass)
     let result = node.div().setChildren([
         node.div('HH').setText('00').setStyle({ color: 'black' }),
         node.div().setText('：').setStyle({ color: 'black' }),
@@ -1775,10 +1773,12 @@ const time = (essentialDialogStyle, width, height, callback) => {
         node.div().setStyle({ color: 'black', width: '10px' }),
         node.div('DN').setText('--').setStyle({ color: 'black' })
     ]).setStyle({ background: 'transparent', cursor: 'auto' })
+    let btn = node.button('', 'OK', dialogButtonClass)
     btn.on('click', () => {
         let h_val = hh.getText()
         let m_val = mm.getText()
         let dn_val = dn.getText()
+        if (dn_val == '--') dn_val = 'AM'
         dig.remove()
         callback(h_val + ':' + m_val + ' ' + dn_val)
     })
