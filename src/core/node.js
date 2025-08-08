@@ -1895,60 +1895,88 @@ const splitterH = (id, cssWidth, topNode, bottomNode) => {
     return jsdom
 }
 
-const sliderH = (id, cssWidth, callback) => {
+// sliderH
+const sliderH = (id, cssWidth, initVal, minVal, maxVal, callback) => {
     if (!id) id = getUniqueId()
 
     let jsdom = node.div(id).setStyle({ display: 'inline-flex', alignItems: 'center', position: 'relative', width: cssWidth, height: '2px', background: 'springgreen', margin: '20px 0px' }).setChildren([
-        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'rgba(255,255,255,.7)', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer', outline: '1.5px solid white' })
+        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'rgba(255,255,255,.7)', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer', outline: '1.5px solid white' }).setChildren([
+            node.div(id + 'thumbInfo').setStyle({ display: 'none', position: 'absolute', transform: 'translate(-25%)', left: '0px', top: '-2em' }).setText('0')
+        ])
     ])
 
     let update = e => {
         let rect = jsdom.getH5Tag().getBoundingClientRect()
         let x = e.pageX - rect.left
-        let percent = x / rect.width * 100
-        if (percent > 100) percent = 100
-        if (percent < 0) percent = 0
-        thumb.setStyle({ left: (rect.width * percent / 100 - 4) + 'px' })
-        callback && callback(percent / 100)
+        let total = maxVal - minVal
+        let ratio = x / rect.width
+        if (ratio > 1) ratio = 1
+        else if (ratio < 0) ratio = 0
+        thumb.setStyle({ left: (rect.width * ratio - 5) + 'px' })
+        thumbInfo.setText(Math.round(minVal + total * ratio))
+        callback && callback(ratio)
     }
 
     let thumb = jsdom.getChildById(id + 'thumb')
+    let thumbInfo = jsdom.getChildById(id + 'thumbInfo')
 
     let app = node.app()
     let isMouseDown = false
-    thumb.on('mousedown', e => { isMouseDown = true, app.setStyle({ cursor: 'pointer' }) })
+    thumb.on('mousedown', e => { isMouseDown = true, app.setStyle({ cursor: 'pointer' }), thumbInfo.setStyle({ display: 'block' }) })
     app.on('mousemove', e => { isMouseDown && update(e) })
-    app.on('mouseup', e => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
-    app.on('mouseleave', _ => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
+    app.on('mouseup', e => { isMouseDown = false, app.setStyle({ cursor: 'auto' }), thumbInfo.setStyle({ display: 'none' }) })
+    app.on('mouseleave', _ => { isMouseDown = false, app.setStyle({ cursor: 'auto' }), thumbInfo.setStyle({ display: 'none' }) })
+
+    requestAnimationFrame(() => {
+        let total = maxVal - minVal
+        let ratio = (initVal - minVal) / total
+        let rect = jsdom.getH5Tag().getBoundingClientRect()
+        thumb.setStyle({ left: (rect.width * ratio - 5) + 'px' })
+        thumbInfo.setText(Math.round(minVal + total * ratio))
+    })
 
     return jsdom
 }
 
-const sliderV = (id, cssHeight, callback) => {
+// sliderV
+const sliderV = (id, cssHeight, initVal, minVal, maxVal, callback) => {
     if (!id) id = getUniqueId()
 
     let jsdom = node.div(id).setStyle({ display: 'inline-flex', alignItems: 'center', position: 'relative', width: '2px', height: cssHeight, background: 'springgreen', margin: '0px 20px' }).setChildren([
-        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'rgba(255,255,255,.7)', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer', outline: '1.5px solid white' })
+        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'rgba(255,255,255,.7)', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer', outline: '1.5px solid white' }).setChildren([
+            node.div(id + 'thumbInfo').setStyle({ display: 'none', position: 'absolute', transform: 'translate(-25%)', left: '1.5em', top: '-.5em' }).setText('0')
+        ])
     ])
 
     let update = e => {
         let rect = jsdom.getH5Tag().getBoundingClientRect()
         let y = e.pageY - rect.top
-        let percent = y / rect.height * 100
-        if (percent > 100) percent = 100
-        if (percent < 0) percent = 0
-        thumb.setStyle({ top: (rect.height * percent / 100 - 4) + 'px' })
-        callback && callback(percent / 100)
+        let total = maxVal - minVal
+        let ratio = y / rect.height
+        if (ratio > 1) ratio = 1
+        else if (ratio < 0) ratio = 0
+        thumb.setStyle({ top: (rect.height * ratio - 5) + 'px' })
+        thumbInfo.setText(Math.round(minVal + total * (1 - ratio)))
+        callback && callback(1 - ratio)
     }
 
     let thumb = jsdom.getChildById(id + 'thumb')
+    let thumbInfo = jsdom.getChildById(id + 'thumbInfo')
 
     let app = node.app()
     let isMouseDown = false
-    thumb.on('mousedown', e => { isMouseDown = true, app.setStyle({ cursor: 'pointer' }) })
+    thumb.on('mousedown', e => { isMouseDown = true, app.setStyle({ cursor: 'pointer' }), thumbInfo.setStyle({ display: 'block' }) })
     app.on('mousemove', e => { isMouseDown && update(e) })
-    app.on('mouseup', e => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
-    app.on('mouseleave', _ => { isMouseDown = false, app.setStyle({ cursor: 'auto' }) })
+    app.on('mouseup', e => { isMouseDown = false, app.setStyle({ cursor: 'auto' }), thumbInfo.setStyle({ display: 'none' }) })
+    app.on('mouseleave', _ => { isMouseDown = false, app.setStyle({ cursor: 'auto' }), thumbInfo.setStyle({ display: 'none' }) })
+
+    requestAnimationFrame(() => {
+        let total = maxVal - minVal
+        let ratio = (initVal - minVal) / total
+        let rect = jsdom.getH5Tag().getBoundingClientRect()
+        thumb.setStyle({ top: (rect.height * ratio - 5) + 'px' })
+        thumbInfo.setText(Math.round(minVal + total * (1 - ratio)))
+    })
 
     return jsdom
 }

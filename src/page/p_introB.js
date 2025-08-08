@@ -64,8 +64,8 @@ export const p_introB = () => {
             node.div().setText('checkbox buttons').setStyle({ padding: '20px 0', color: '#666' }),
             ui.layoutH(node.vm_checkbox('checkbox', vmCheckboxDatas, 'springgreen', d => console.log(d)), 6),
             node.div().setText('slider').setStyle({ padding: '20px 0', color: '#666' }),
-            node.sliderH('sliderH', '100px', r => console.log('sliderH', r)).setClass('select-none'),
-            node.sliderV('sliderV', '100px', r => console.log('sliderV', r)).setClass('select-none'),
+            node.sliderH('sliderH', '100px', 20, 10, 90, r => console.log('sliderH', r)).setClass('select-none'),
+            node.sliderV('sliderV', '100px', 20, 10, 90, r => console.log('sliderV', r)).setClass('select-none'),
             node.hr(),
             // image
             node.div().setText('image'),
