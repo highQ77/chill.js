@@ -34,7 +34,7 @@ export const p_introB = () => {
         node.div().setChildren([
             node.hr(),
             // dialogs
-            node.div().setText('dialogs'),
+            node.div().setText('🟢 dialogs').setStyle({ margin: '20px 0' }),
             ui.button('alert', 'alert'),
             ui.button('confirm', 'confirm'),
             ui.button('date', 'datePicker'),
@@ -42,16 +42,16 @@ export const p_introB = () => {
             ui.button('color', 'colorPicker'),
             node.hr(),
             // store data
-            node.div().setText('store data - you can save MVVM & colorPicker state'),
+            node.div().setText('🟢 store data - you can save MVVM & colorPicker state').setStyle({ margin: '20px 0' }),
             ui.button('save', 'save store'),
             ui.button('clear', 'clear store'),
             node.hr(),
             // node
-            node.div().setText('node'),
+            node.div().setText('🟢 node').setStyle({ margin: '20px 0' }),
             ui.button('all', 'all nodes log in console panel'),
             node.hr(),
             // input
-            node.div().setText('input'),
+            node.div().setText('🟢 input').setStyle({ margin: '20px 0' }),
             node.div().setText('inputs').setStyle({ padding: '20px 0', color: '#666' }),
             node.vm_textarea('textarea', oneItemData).setClass('bg-black p-2 border-1 border-[springgreen] rounded-sm').setPlaceholder('this is textarea'),
             node.vm_single('', oneItemTemplate, oneItemData),
@@ -70,15 +70,15 @@ export const p_introB = () => {
             node.sliderV('sliderV', '100px', 20, 10, 90, r => console.log('sliderV', r)).setClass('select-none'),
             node.hr(),
             // image
-            node.div().setText('image'),
+            node.div().setText('🟢 image').setStyle({ margin: '20px 0' }),
             node.scroller('featuresScroller', '200px', '200px', 'springgreen', '#333', '-10px', '3px', node.img('testimg').setSrc('sample.png').setClass('rounded-sm').setStyle({ width: '500px', height: '500px' }), 2),
             node.hr(),
             // pager
-            node.div().setText('pager'),
+            node.div().setText('🟢 pager').setStyle({ margin: '20px 0' }),
             node.pager('pager', vmPagerDatas, node.vm_list('pagerData', vmPagerDataView, vmPagerDatas), 9).setClass('select-none'),
             node.hr(),
             // splitter
-            node.div().setText('splitter'),
+            node.div().setText('🟢 splitter').setStyle({ margin: '20px 0' }),
             node.splitterV('splitterV', '300px',
                 node.div().setStyle({ background: '#333' }).setText('Left Part').setClass('rounded-sm'),
                 node.div().setChildren([
@@ -90,8 +90,8 @@ export const p_introB = () => {
             ).setClass('select-none rounded-sm'),
             // rich text editor
             node.hr(),
-            node.div().setText('text editor'),
-            node.div().setStyle({ margin: '10px 0', background: '#FFFFFF99', color: 'black' }).setChildren([
+            node.div().setText('🟢 text editor').setStyle({ margin: '20px 0' }),
+            node.div().setStyle({ background: '#FFFFFF99', color: 'black' }).setChildren([
                 quilljs.create('editor'),
             ]),
         ])
