@@ -1782,13 +1782,7 @@ const time = (essentialDialogStyle, width, height, callback) => {
         dig.remove()
         callback(h_val + ':' + m_val + ' ' + dn_val)
     })
-    reset.on('click', () => {
-        hh.setText('00')
-        mm.setText('00')
-        dn.setText('--')
-    })
     buttons.push(result)
-    buttons.push(reset)
     buttons.push(btn)
     let dig = dialog('Time Picker', content, buttons, essentialDialogStyle, width, height, callback)
 
