@@ -64,8 +64,8 @@ export const p_introB = () => {
             node.div().setText('checkbox buttons').setStyle({ padding: '20px 0', color: '#666' }),
             ui.layoutH(node.vm_checkbox('checkbox', vmCheckboxDatas, 'springgreen', d => console.log(d)), 6),
             node.div().setText('slider').setStyle({ padding: '20px 0', color: '#666' }),
-            node.sliderH('sliderH', '100px').setClass('select-none'),
-            node.sliderV('sliderV', '100px').setClass('select-none'),
+            node.sliderH('sliderH', '100px', r => console.log('sliderH', r)).setClass('select-none'),
+            node.sliderV('sliderV', '100px', r => console.log('sliderV', r)).setClass('select-none'),
             node.hr(),
             // image
             node.div().setText('image'),
@@ -78,14 +78,14 @@ export const p_introB = () => {
             // splitter
             node.div().setText('splitter'),
             node.splitterH('splitter', '300px',
-                node.div().setStyle({ background: '#333' }).setText('Left Part'),
-                node.div().setStyle({ background: '#333' }).setChildren([
+                node.div().setStyle({ background: '#333' }).setText('Left Part').setClass('rounded-sm p-2'),
+                node.div().setChildren([
                     node.splitterV('splitterV', '100%',
-                        node.div().setStyle({ background: '#333' }).setText('Right-Top Part'),
-                        node.div().setStyle({ background: '#333' }).setText('Right-Bottom Part')
-                    )
-                ])
-            ).setClass('select-none')
+                        node.div().setStyle({ background: '#333' }).setText('Right-Top Part').setClass('rounded-sm p-2'),
+                        node.div().setStyle({ background: '#333' }).setText('Right-Bottom Part').setClass('rounded-sm p-2')
+                    ).setClass('rounded-sm')
+                ]).setClass('rounded-sm')
+            ).setClass('select-none rounded-sm')
         ])
     ])
 

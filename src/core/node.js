@@ -1899,7 +1899,7 @@ const sliderH = (id, cssWidth, callback) => {
     if (!id) id = getUniqueId()
 
     let jsdom = node.div(id).setStyle({ display: 'inline-flex', alignItems: 'center', position: 'relative', width: cssWidth, height: '2px', background: 'springgreen', margin: '20px 0px' }).setChildren([
-        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'white', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer' })
+        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'rgba(255,255,255,.7)', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer', outline: '1.5px solid white' })
     ])
 
     let update = e => {
@@ -1928,7 +1928,7 @@ const sliderV = (id, cssHeight, callback) => {
     if (!id) id = getUniqueId()
 
     let jsdom = node.div(id).setStyle({ display: 'inline-flex', alignItems: 'center', position: 'relative', width: '2px', height: cssHeight, background: 'springgreen', margin: '0px 20px' }).setChildren([
-        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'white', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer' })
+        node.div(id + 'thumb').setStyle({ position: 'absolute', left: '-4px', top: '-4px', background: 'rgba(255,255,255,.7)', width: '10px', height: '10px', borderRadius: '100%', cursor: 'pointer', outline: '1.5px solid white' })
     ])
 
     let update = e => {
