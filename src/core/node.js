@@ -1759,6 +1759,94 @@ const date = (essentialDialogStyle, dateClass, width, height, callback) => {
     return dig
 }
 
+// time dialog
+const time = (essentialDialogStyle, width, height, callback) => {
+    let { dialogButtonClass } = essentialDialogStyle
+    let content = node.div().setStyle({ width, height, background: '#333' }).setChildren([
+        node.div('timeCircle').setStyle({ position: 'relative', width, height, background: '#C90' })
+    ])
+    let buttons = []
+    let btn = node.button('', 'OK', dialogButtonClass)
+    let reset = node.button('', 'Reset', dialogButtonClass)
+    let result = node.div().setChildren([
+        node.div('HH').setText('00').setStyle({ color: 'black' }),
+        node.div().setText('：').setStyle({ color: 'black' }),
+        node.div('MM').setText('00').setStyle({ color: 'black' }),
+        node.div().setStyle({ color: 'black', width: '10px' }),
+        node.div('DN').setText('--').setStyle({ color: 'black' })
+    ]).setStyle({ background: 'transparent', cursor: 'auto' })
+    btn.on('click', () => {
+        let h_val = hh.getText()
+        let m_val = mm.getText()
+        let dn_val = dn.getText()
+        dig.remove()
+        callback(h_val + ':' + m_val + ' ' + dn_val)
+    })
+    reset.on('click', () => {
+        hh.setText('00')
+        mm.setText('00')
+        dn.setText('--')
+    })
+    buttons.push(result)
+    buttons.push(reset)
+    buttons.push(btn)
+    let dig = dialog('Time Picker', content, buttons, essentialDialogStyle, width, height, callback)
+
+    let timeCircle = content.getChildById('timeCircle')
+    let hh = result.getChildById('HH')
+    let mm = result.getChildById('MM')
+    let dn = result.getChildById('DN')
+
+    requestAnimationFrame(() => {
+        let rect = timeCircle.getH5Tag().getBoundingClientRect()
+        let segCount = 12
+        let r = 120
+        let startAngle = -60
+        // HH
+        let nodes = Array(segCount).fill(0).map((i, idx) => {
+            let rad = (360 / segCount * idx + startAngle) / 180 * Math.PI
+            let left = rect.width / 2 + r * Math.cos(rad) + 'px'
+            let top = rect.height / 2 + r * Math.sin(rad) + 'px'
+            return node.div().setText((idx + 1 + '').padStart(2, '0'))
+                .on('mouseenter', (e, t) => { t.setStyle({ background: 'rgba(0,0,0,.3)' }) })
+                .on('mouseleave', (e, t) => { t.setStyle({ background: 'rgba(0,0,0,0)' }) })
+                .on('click', (e, t) => { nodes.forEach(t => t.setStyle({ border: '1px solid rgba(0,0,0,0)' })); t.setStyle({ border: '1px solid white' }); hh.setText(t.getText()) })
+                .setStyle({ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', color: 'white', left, top, transform: 'translate(-50%, -50%)', width: '30px', height: '30px', borderRadius: '100%', cursor: 'pointer' })
+        })
+
+        r = 80
+        startAngle = -90
+        // MM
+        let nodes2 = Array(segCount).fill(0).map((i, idx) => {
+            let rad = (360 / segCount * idx + startAngle) / 180 * Math.PI
+            let left = rect.width / 2 + r * Math.cos(rad) + 'px'
+            let top = rect.height / 2 + r * Math.sin(rad) + 'px'
+            return node.div().setText((idx * 5 + '').padStart(2, '0'))
+                .on('mouseenter', (e, t) => { t.setStyle({ background: 'rgba(0,0,0,.1)' }) })
+                .on('mouseleave', (e, t) => { t.setStyle({ background: 'rgba(0,0,0,0)' }) })
+                .on('click', (e, t) => { nodes2.forEach(t => t.setStyle({ border: '1px solid rgba(0,0,0,0)' })); t.setStyle({ border: '1px solid #66330088' }); mm.setText(t.getText()) })
+                .setStyle({ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', color: '#66330088', left, top, transform: 'translate(-50%, -50%)', width: '30px', height: '30px', borderRadius: '100%', cursor: 'pointer' })
+        })
+        // DN
+        let nodes3 = node.div().setStyle({ display: 'flex', justifyContent: 'center', alignItems: 'center', width, height }).setChildren([
+            node.div().setText('AM').setStyle({ cursor: 'pointer', padding: '5px', color: '#33333388', border: '1px solid #33333333', marginRight: '10px' }).on('click', (e, t) => {
+                nodes3.getChildren().forEach(t => t.setStyle({ color: '#33333388', border: '1px solid #33333333' }))
+                t.setStyle({ color: 'black', border: '1px solid black' })
+                dn.setText(t.getText())
+            }),
+            node.div().setText('PM').setStyle({ cursor: 'pointer', padding: '5px', color: '#33333388', border: '1px solid #33333333' }).on('click', (e, t) => {
+                nodes3.getChildren().forEach(t => t.setStyle({ color: '#33333388', border: '1px solid #33333333' }))
+                t.setStyle({ color: 'black', border: '1px solid black' })
+                dn.setText(t.getText())
+            }),
+        ])
+        let allNodes = [...nodes, ...nodes2, nodes3]
+        timeCircle.setChildren(allNodes)
+    })
+
+    return dig
+}
+
 const color = (essentialDialogStyle, colorClass, width, height, callback) => {
     let { dialogButtonClass } = essentialDialogStyle
 
@@ -2312,6 +2400,8 @@ export const node = {
     dialog,
     /** 日期選擇器 */
     date,
+    /** 時間選擇器 */
+    time,
     /** 顏色選擇器 */
     color,
     /** dialog 延伸的警告視窗 */

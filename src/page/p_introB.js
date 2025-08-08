@@ -37,6 +37,7 @@ export const p_introB = () => {
             ui.button('alert', 'alert'),
             ui.button('confirm', 'confirm'),
             ui.button('date', 'datePicker'),
+            ui.button('time', 'timePicker'),
             ui.button('color', 'colorPicker'),
             node.hr(),
             // store data
@@ -105,6 +106,9 @@ export const p_introB = () => {
     })
     jsdom.getChildById('date').on('click', (e, t) => {
         ui.date(result => result && t.setText(result))
+    })
+    jsdom.getChildById('time').on('click', (e, t) => {
+        ui.time(result => result && t.setText(result))
     })
     jsdom.getChildById('color').on('click', (e, t) => {
         ui.color(color => {

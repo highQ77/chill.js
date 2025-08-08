@@ -39,7 +39,7 @@ function confirm(msg, cssWidth, cssHeight, callback) {
     return node.confirm(msg, essentialDialogStyle, cssWidth, cssHeight, callback)
 }
 
-// ---------------- Date Picker
+// ---------------- Date & Time Picker
 
 const dateClass = {
     /**  selected digital date button border */
@@ -49,6 +49,10 @@ const dateClass = {
 
 function date(callback) {
     return node.date(essentialDialogStyle, dateClass, '325px', '285px', callback)
+}
+
+function time(callback) {
+    return node.time(essentialDialogStyle, '325px', '285px', callback)
 }
 
 // ---------------- Color Picker
@@ -79,6 +83,7 @@ export const ui = {
     alert,
     confirm,
     date,
+    time,
     color,
     vm_select,
     layoutV,
