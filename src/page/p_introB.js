@@ -33,11 +33,6 @@ export const p_introB = () => {
         node.span('sub').setText('Misc.').setClass('text-3xl'),
         node.div().setChildren([
             node.hr(),
-            // rich text editor
-            node.div().setText('rich text editor'),
-            node.div().setStyle({ margin: '30px 0', background: 'white', color: 'black' }).setChildren([
-                quilljs.create('editor'),
-            ]),
             // dialogs
             node.div().setText('dialogs'),
             ui.button('alert', 'alert'),
@@ -92,7 +87,13 @@ export const p_introB = () => {
                         node.div().setStyle({ background: '#333' }).setText('Right-Bottom Part').setClass('rounded-sm')
                     ).setClass('rounded-sm')
                 ]).setClass('rounded-sm')
-            ).setClass('select-none rounded-sm')
+            ).setClass('select-none rounded-sm'),
+            // rich text editor
+            node.hr(),
+            node.div().setText('text editor'),
+            node.div().setStyle({ margin: '10px 0', background: '#FFFFFF99', color: 'black' }).setChildren([
+                quilljs.create('editor'),
+            ]),
         ])
     ])
 
